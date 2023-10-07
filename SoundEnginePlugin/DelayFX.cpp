@@ -29,8 +29,6 @@ the specific language governing permissions and limitations under the License.
 
 #include <AK/AkWwiseSDKVersion.h>
 
-#include <cassert>
-
 AK::IAkPlugin *CreateDelayFX(AK::IAkPluginMemAlloc *in_pAllocator)
 {
   return AK_PLUGIN_NEW(in_pAllocator, DelayFX());
@@ -45,20 +43,11 @@ AK_IMPLEMENT_PLUGIN_FACTORY(DelayFX, AkPluginTypeEffect, DelayConfig::CompanyID,
                             DelayConfig::PluginID)
 
 DelayFX::DelayFX()
-    : m_pParams(nullptr), m_pAllocator(nullptr), m_pContext(nullptr),
-      mSampleRate(0),
-      mDelayTimeSmoothed(0) {}
+    : m_pParams(nullptr), m_pAllocator(nullptr), m_pContext(nullptr) {}
 
 DelayFX::~DelayFX()
 {
-  for (Delayline &delayLine : mDelaylines)
-  {
-    if (delayLine.circularBuffer)
-    {
-      delete[] delayLine.circularBuffer->buffer;
-      delayLine.circularBuffer->buffer = nullptr;
-    }
-  }
+  // delay is deleted
 }
 
 AKRESULT DelayFX::Init(AK::IAkPluginMemAlloc *in_pAllocator,
@@ -71,26 +60,7 @@ AKRESULT DelayFX::Init(AK::IAkPluginMemAlloc *in_pAllocator,
   m_pContext = in_pContext;
   mSampleRate = in_rFormat.uSampleRate;
 
-  mDelayTimeSamples = mSampleRate * m_pParams->RTPC.fDelayTime;
-  mDelayTimeSmoothed = m_pParams->RTPC.fDelayTime;
-
-  for (Delayline &delayLine : mDelaylines)
-  {
-
-    if (!delayLine.circularBuffer)
-    {
-      delayLine.circularBuffer = std::make_unique<CircularBuffer>();
-      delayLine.circularBuffer->length = mSampleRate * MAX_DELAY_TIME;
-      delayLine.circularBuffer->buffer = new float[delayLine.circularBuffer->length];
-    }
-
-    for (AkUInt32 j = 0; j < delayLine.circularBuffer->length; ++j)
-    {
-      delayLine.circularBuffer->buffer[j] = 0.0f;
-    }
-    delayLine.circularBuffer->readHead = 0;
-    delayLine.circularBuffer->writeHead = 0;
-  }
+  mDelayModule.Init(mSampleRate, m_pParams->RTPC.fDelayTime);
 
   return AK_Success;
 }
@@ -112,40 +82,9 @@ AKRESULT DelayFX::GetPluginInfo(AkPluginInfo &out_rPluginInfo)
   return AK_Success;
 }
 
-float DelayFX::_smoothParameter(float inParameterSmoothed, float inNewParameter)
-{
-  return inParameterSmoothed -
-         0.0001 * (inParameterSmoothed - inNewParameter);
-}
-
 void DelayFX::Execute(AkAudioBuffer *io_pBuffer)
 {
-  assert(io_pBuffer->NumChannels() == mDelaylines.size());
-
-  AkUInt16 numFramesProcessed = 0;
-  while (numFramesProcessed < io_pBuffer->uValidFrames)
-  {
-    mDelayTimeSmoothed = _smoothParameter(mDelayTimeSmoothed, m_pParams->RTPC.fDelayTime);
-    mDelayTimeSamples = mSampleRate * mDelayTimeSmoothed;
-
-    for (int i = 0; i < io_pBuffer->NumChannels(); i++)
-    {
-      Delayline &delayLine = mDelaylines[i];
-
-      AkReal32 *AK_RESTRICT pBuf =
-          (AkReal32 * AK_RESTRICT) io_pBuffer->GetChannel(i);
-
-      delayLine.write(pBuf[numFramesProcessed]);
-
-      delayLine.updateReadHead(mDelayTimeSamples);
-
-      delayLine.process(pBuf, numFramesProcessed, m_pParams->RTPC.fFeedback, m_pParams->RTPC.fDryWet);
-
-      delayLine.updateWriteHead();
-    }
-
-    ++numFramesProcessed;
-  }
+  mDelayModule.Execute(io_pBuffer, m_pParams);
 }
 
 AKRESULT DelayFX::TimeSkip(AkUInt32 in_uFrames) { return AK_DataReady; }
@@ -153,4 +92,10 @@ AKRESULT DelayFX::TimeSkip(AkUInt32 in_uFrames) { return AK_DataReady; }
 float lerp(float sample_x, float sample_x1, float phase)
 {
   return (1 - phase) * sample_x + phase * sample_x1;
+}
+
+float _smoothParameter(float inParameterSmoothed, float inNewParameter)
+{
+  return inParameterSmoothed -
+         0.0001 * (inParameterSmoothed - inNewParameter);
 }
