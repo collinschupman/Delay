@@ -30,7 +30,6 @@ the specific language governing permissions and limitations under the License.
 #include <AK/Plugin/PluginServices/AkFXParameterChangeHandler.h>
 #include <AK/SoundEngine/Common/IAkPlugin.h>
 
-
 static const AkPluginParamID PARAM_DRYWET_ID = 0;
 static const AkPluginParamID PARAM_FEEDBACK_ID = 1;
 static const AkPluginParamID PARAM_DELAY_TIME_ID = 2;

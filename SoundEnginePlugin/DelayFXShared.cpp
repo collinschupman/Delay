@@ -27,7 +27,6 @@ the specific language governing permissions and limitations under the License.
 #include "DelayFXFactory.h"
 #include <AK/SoundEngine/Common/IAkPlugin.h>
 
-
 #include <AK/Tools/Common/AkAssert.h>
 
 DEFINEDUMMYASSERTHOOK;

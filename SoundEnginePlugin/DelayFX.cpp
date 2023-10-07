@@ -29,11 +29,15 @@ the specific language governing permissions and limitations under the License.
 
 #include <AK/AkWwiseSDKVersion.h>
 
-AK::IAkPlugin *CreateDelayFX(AK::IAkPluginMemAlloc *in_pAllocator) {
+#include <cassert>
+
+AK::IAkPlugin *CreateDelayFX(AK::IAkPluginMemAlloc *in_pAllocator)
+{
   return AK_PLUGIN_NEW(in_pAllocator, DelayFX());
 }
 
-AK::IAkPluginParam *CreateDelayFXParams(AK::IAkPluginMemAlloc *in_pAllocator) {
+AK::IAkPluginParam *CreateDelayFXParams(AK::IAkPluginMemAlloc *in_pAllocator)
+{
   return AK_PLUGIN_NEW(in_pAllocator, DelayFXParams());
 }
 
@@ -42,64 +46,65 @@ AK_IMPLEMENT_PLUGIN_FACTORY(DelayFX, AkPluginTypeEffect, DelayConfig::CompanyID,
 
 DelayFX::DelayFX()
     : m_pParams(nullptr), m_pAllocator(nullptr), m_pContext(nullptr),
-      mCircularBufferLength(0), mCircularBuffers(nullptr), mSampleRate(0),
+      mSampleRate(0),
       mDelayTimeSmoothed(0) {}
 
-DelayFX::~DelayFX() {
-  mCircularBufferLength = 0;
-
-  if (mCircularBuffers != nullptr) {
-    for (int i = 0; i < 2; ++i) {
-      delete[] mCircularBuffers[i].buffer;
+DelayFX::~DelayFX()
+{
+  for (Delayline &delayLine : mDelaylines)
+  {
+    if (delayLine.circularBuffer)
+    {
+      delete[] delayLine.circularBuffer->buffer;
+      delayLine.circularBuffer->buffer = nullptr;
     }
-    delete[] mCircularBuffers;
-    mCircularBuffers = nullptr;
   }
 }
 
 AKRESULT DelayFX::Init(AK::IAkPluginMemAlloc *in_pAllocator,
                        AK::IAkEffectPluginContext *in_pContext,
                        AK::IAkPluginParam *in_pParams,
-                       AkAudioFormat &in_rFormat) {
+                       AkAudioFormat &in_rFormat)
+{
   m_pParams = (DelayFXParams *)in_pParams;
   m_pAllocator = in_pAllocator;
   m_pContext = in_pContext;
   mSampleRate = in_rFormat.uSampleRate;
 
-  mCircularBufferLength = mSampleRate * MAX_DELAY_TIME;
   mDelayTimeSamples = mSampleRate * m_pParams->RTPC.fDelayTime;
-  feedback = 0.f;
   mDelayTimeSmoothed = m_pParams->RTPC.fDelayTime;
 
-  // init if needed
-  if (mCircularBuffers == nullptr) {
-    mCircularBuffers = new CircularBuffer[2];
+  for (Delayline &delayLine : mDelaylines)
+  {
 
-    for (int i = 0; i < 2; ++i) {
-      mCircularBuffers[i].buffer = new float[mCircularBufferLength];
+    if (!delayLine.circularBuffer)
+    {
+      delayLine.circularBuffer = std::make_unique<CircularBuffer>();
+      delayLine.circularBuffer->length = mSampleRate * MAX_DELAY_TIME;
+      delayLine.circularBuffer->buffer = new float[delayLine.circularBuffer->length];
     }
-  }
 
-  // zero out
-  for (int i = 0; i < 2; ++i) {
-    for (AkUInt32 j = 0; j < mCircularBufferLength; ++j) {
-      mCircularBuffers[i].buffer[j] = 0.0f;
-      mCircularBuffers->readHead = 0;
-      mCircularBuffers->writeHead = 0;
+    for (AkUInt32 j = 0; j < delayLine.circularBuffer->length; ++j)
+    {
+      delayLine.circularBuffer->buffer[j] = 0.0f;
     }
+    delayLine.circularBuffer->readHead = 0;
+    delayLine.circularBuffer->writeHead = 0;
   }
 
   return AK_Success;
 }
 
-AKRESULT DelayFX::Term(AK::IAkPluginMemAlloc *in_pAllocator) {
+AKRESULT DelayFX::Term(AK::IAkPluginMemAlloc *in_pAllocator)
+{
   AK_PLUGIN_DELETE(in_pAllocator, this);
   return AK_Success;
 }
 
 AKRESULT DelayFX::Reset() { return AK_Success; }
 
-AKRESULT DelayFX::GetPluginInfo(AkPluginInfo &out_rPluginInfo) {
+AKRESULT DelayFX::GetPluginInfo(AkPluginInfo &out_rPluginInfo)
+{
   out_rPluginInfo.eType = AkPluginTypeEffect;
   out_rPluginInfo.bIsInPlace = true;
   out_rPluginInfo.bCanProcessObjects = false;
@@ -107,65 +112,45 @@ AKRESULT DelayFX::GetPluginInfo(AkPluginInfo &out_rPluginInfo) {
   return AK_Success;
 }
 
-void DelayFX::Execute(AkAudioBuffer *io_pBuffer) {
-  const AkUInt32 uNumChannels = io_pBuffer->NumChannels();
+float DelayFX::_smoothParameter(float inParameterSmoothed, float inNewParameter)
+{
+  return inParameterSmoothed -
+         0.0001 * (inParameterSmoothed - inNewParameter);
+}
 
-  AkUInt16 uFramesProcessed;
+void DelayFX::Execute(AkAudioBuffer *io_pBuffer)
+{
+  assert(io_pBuffer->NumChannels() == mDelaylines.size());
 
-  // TD: need to make this one loop for smoothing to work correctly
-  for (AkUInt32 channel = 0; channel < uNumChannels; ++channel) {
-    AkReal32 *AK_RESTRICT pBuf =
-        (AkReal32 * AK_RESTRICT) io_pBuffer->GetChannel(channel);
-    CircularBuffer *circularBuffer = &mCircularBuffers[channel];
+  AkUInt16 numFramesProcessed = 0;
+  while (numFramesProcessed < io_pBuffer->uValidFrames)
+  {
+    mDelayTimeSmoothed = _smoothParameter(mDelayTimeSmoothed, m_pParams->RTPC.fDelayTime);
+    mDelayTimeSamples = mSampleRate * mDelayTimeSmoothed;
 
-    uFramesProcessed = 0;
-    while (uFramesProcessed < io_pBuffer->uValidFrames) {
-      mDelayTimeSmoothed =
-          mDelayTimeSmoothed -
-          0.0001 * (mDelayTimeSmoothed - m_pParams->RTPC.fDelayTime);
-      mDelayTimeSamples = mSampleRate * mDelayTimeSmoothed;
+    for (int i = 0; i < io_pBuffer->NumChannels(); i++)
+    {
+      Delayline &delayLine = mDelaylines[i];
 
-      // update the circular buffer
-      circularBuffer->buffer[circularBuffer->writeHead] =
-          pBuf[uFramesProcessed] + feedback;
+      AkReal32 *AK_RESTRICT pBuf =
+          (AkReal32 * AK_RESTRICT) io_pBuffer->GetChannel(i);
 
-      // update the read head
-      circularBuffer->readHead = circularBuffer->writeHead - mDelayTimeSamples;
-      if (circularBuffer->readHead < 0) {
-        circularBuffer->readHead += mCircularBufferLength;
-      }
+      delayLine.write(pBuf[numFramesProcessed]);
 
-      int readHead_x = (int)circularBuffer->readHead;
-      int readHead_x1 = readHead_x + 1;
-      if (readHead_x1 >= mCircularBufferLength) {
-        readHead_x1 - mCircularBufferLength;
-      }
-      float readHeadFloat = circularBuffer->readHead - readHead_x;
+      delayLine.updateReadHead(mDelayTimeSamples);
 
-      float delayedSample =
-          lerp(circularBuffer->buffer[readHead_x],
-               circularBuffer->buffer[readHead_x1], readHeadFloat);
+      delayLine.process(pBuf, numFramesProcessed, m_pParams->RTPC.fFeedback, m_pParams->RTPC.fDryWet);
 
-      feedback = delayedSample * m_pParams->RTPC.fFeedback;
-
-      pBuf[uFramesProcessed] =
-          delayedSample * m_pParams->RTPC.fDryWet +
-          pBuf[uFramesProcessed] * (1.f - m_pParams->RTPC.fDryWet);
-
-      // update the write head
-      ++circularBuffer->writeHead;
-      if (circularBuffer->writeHead >= mCircularBufferLength) {
-        circularBuffer->writeHead = 0;
-      }
-
-      // increment the current frame
-      ++uFramesProcessed;
+      delayLine.updateWriteHead();
     }
+
+    ++numFramesProcessed;
   }
 }
 
 AKRESULT DelayFX::TimeSkip(AkUInt32 in_uFrames) { return AK_DataReady; }
 
-float DelayFX::lerp(float sample_x, float sample_x1, float phase) {
+float lerp(float sample_x, float sample_x1, float phase)
+{
   return (1 - phase) * sample_x + phase * sample_x1;
 }

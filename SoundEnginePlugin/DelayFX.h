@@ -28,10 +28,15 @@ the specific language governing permissions and limitations under the License.
 #define DelayFX_H
 
 #include "DelayFXParams.h"
+#include <memory>
+#include <array>
 
 #define MAX_DELAY_TIME 2
 
-class DelayFX : public AK::IAkInPlaceEffectPlugin {
+float lerp(float sample_x, float sample_x1, float phase);
+
+class DelayFX : public AK::IAkInPlaceEffectPlugin
+{
 public:
   DelayFX();
   ~DelayFX();
@@ -55,27 +60,77 @@ private:
   DelayFXParams *m_pParams;
   AK::IAkPluginMemAlloc *m_pAllocator;
   AK::IAkEffectPluginContext *m_pContext;
+
   AkUInt32 mSampleRate;
 
-  // TD: refactor all of this out
-
-  float lerp(float sample_x, float sample_x1, float phase);
+  float _smoothParameter(float inParameterSmoothed, float inNewParameter);
 
   float mDelayTimeSmoothed;
 
   float mDelayTimeSamples;
 
-  int mCircularBufferLength;
-
-  float feedback;
-
-  struct CircularBuffer {
+  struct CircularBuffer
+  {
+    int length = 0;
     float readHead = 0.f;
     int writeHead = 0;
     float *buffer = nullptr;
   };
 
-  CircularBuffer *mCircularBuffers;
+  struct Delayline
+  {
+  private:
+    float mFeedback = 0.f;
+
+  public:
+    std::unique_ptr<CircularBuffer> circularBuffer = nullptr;
+    void write(float inValue)
+    {
+      circularBuffer->buffer[circularBuffer->writeHead] =
+          inValue + mFeedback;
+    }
+
+    void process(AkReal32 *AK_RESTRICT pBuf, AkUInt16 pBufPos, float inFeedback, float dryWet)
+    {
+      int readHead_x = (int)circularBuffer->readHead;
+      int readHead_x1 = readHead_x + 1;
+      if (readHead_x1 >= circularBuffer->length)
+      {
+        readHead_x1 - circularBuffer->length;
+      }
+      float readHeadFloat = circularBuffer->readHead - readHead_x;
+
+      float delayedSample =
+          lerp(circularBuffer->buffer[readHead_x],
+               circularBuffer->buffer[readHead_x1], readHeadFloat);
+
+      mFeedback = delayedSample * inFeedback;
+
+      pBuf[pBufPos] =
+          delayedSample * dryWet +
+          pBuf[pBufPos] * (1.f - dryWet);
+    }
+
+    void updateReadHead(float delayTime)
+    {
+      circularBuffer->readHead = circularBuffer->writeHead - delayTime;
+      if (circularBuffer->readHead < 0)
+      {
+        circularBuffer->readHead += circularBuffer->length;
+      }
+    }
+
+    void updateWriteHead()
+    {
+      ++circularBuffer->writeHead;
+      if (circularBuffer->writeHead >= circularBuffer->length)
+      {
+        circularBuffer->writeHead = 0;
+      }
+    }
+  };
+
+  std::array<DelayFX::Delayline, 2> mDelaylines;
 };
 
 #endif // DelayFX_H
