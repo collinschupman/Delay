@@ -33,14 +33,20 @@ the specific language governing permissions and limitations under the License.
 static const AkPluginParamID PARAM_DRYWET_ID = 0;
 static const AkPluginParamID PARAM_FEEDBACK_ID = 1;
 static const AkPluginParamID PARAM_DELAY_TIME_ID = 2;
+static const AkPluginParamID PARAM_DEPTH_ID = 3;
+static const AkPluginParamID PARAM_RATE_ID = 4;
+static const AkPluginParamID PARAM_PHASE_OFFSET_ID = 5;
 
-static const AkUInt32 NUM_PARAMS = 3;
+static const AkUInt32 NUM_PARAMS = 6;
 
 struct DelayRTPCParams
 {
   AkReal32 fDryWet;
   AkReal32 fFeedback;
   AkReal32 fDelayTime;
+  AkReal32 fDepth;
+  AkReal32 fRate;
+  AkReal32 fPhaseOffset;
 };
 
 struct DelayNonRTPCParams
