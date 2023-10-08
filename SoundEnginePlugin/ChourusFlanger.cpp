@@ -2,18 +2,6 @@
 
 #include <cassert>
 
-ChorusFlanger::~ChorusFlanger()
-{
-    for (Delayline &delayLine : mDelaylines)
-    {
-        if (delayLine.circularBuffer)
-        {
-            delete[] delayLine.circularBuffer->buffer;
-            delayLine.circularBuffer->buffer = nullptr;
-        }
-    }
-}
-
 AKRESULT ChorusFlanger::Init(AkUInt32 inSampleRate, float delayTime, float maxDelayTime)
 {
     mSampleRate = inSampleRate;
@@ -23,20 +11,7 @@ AKRESULT ChorusFlanger::Init(AkUInt32 inSampleRate, float delayTime, float maxDe
 
     for (Delayline &delayLine : mDelaylines)
     {
-
-        if (!delayLine.circularBuffer)
-        {
-            delayLine.circularBuffer = std::make_unique<CircularBuffer>();
-            delayLine.circularBuffer->length = mSampleRate * maxDelayTime;
-            delayLine.circularBuffer->buffer = new float[delayLine.circularBuffer->length];
-        }
-
-        for (AkUInt32 j = 0; j < delayLine.circularBuffer->length; ++j)
-        {
-            delayLine.circularBuffer->buffer[j] = 0.0f;
-        }
-        delayLine.circularBuffer->readHead = 0;
-        delayLine.circularBuffer->writeHead = 0;
+        delayLine.Init(inSampleRate, maxDelayTime);
     }
 
     return AK_Success;

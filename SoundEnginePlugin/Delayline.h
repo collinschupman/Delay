@@ -4,6 +4,7 @@
 #include "Helpers.h"
 
 #include <AK/SoundEngine/Common/AkNumeralTypes.h>
+#include <AK/SoundEngine/Common/AKCommonDefs.h>
 
 #include <memory>
 
@@ -11,9 +12,10 @@ struct Delayline
 {
 private:
     float mFeedback = 0.f;
+    std::unique_ptr<CircularBuffer> circularBuffer = nullptr;
 
 public:
-    std::unique_ptr<CircularBuffer> circularBuffer = nullptr;
+    AKRESULT Init(AkUInt32 inSampleRate, float maxDelayTime);
 
     void write(float inValue);
 

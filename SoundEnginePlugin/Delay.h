@@ -17,8 +17,6 @@ private:
     float mDelayTimeSamples = 0.f;
 
 public:
-    ~Delay();
-
     AKRESULT Init(AkUInt32 inSampleRate, float delayTime, float maxDelayTime);
 
     void Execute(AkAudioBuffer *io_pBuffer, AkReal32 pDelayTime, AkReal32 pFeedback, AkReal32 pDryWet);

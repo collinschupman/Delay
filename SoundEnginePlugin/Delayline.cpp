@@ -3,6 +3,18 @@
 
 #include <memory>
 
+AKRESULT Delayline::Init(AkUInt32 inSampleRate, float maxDelayTime)
+{
+    if (!circularBuffer)
+    {
+        circularBuffer = std::make_unique<CircularBuffer>(inSampleRate, maxDelayTime);
+    }
+
+    circularBuffer->reset();
+
+    return AK_Success;
+}
+
 void Delayline::write(float inValue)
 {
     circularBuffer->buffer[circularBuffer->writeHead] =

@@ -19,8 +19,6 @@ private:
     LFO mLFO;
 
 public:
-    ~ChorusFlanger();
-
     AKRESULT Init(AkUInt32 inSampleRate, float delayTime, float maxDelayTime);
 
     void Execute(AkAudioBuffer *io_pBuffer, AkReal32 pDelayTime, AkReal32 pFeedback, AkReal32 pDryWet);
