@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <!--
 The content of this file includes portions of the AUDIOKINETIC Wwise Technology
 released in source code form as part of the SDK installer package.
@@ -29,105 +29,107 @@ See https://www.audiokinetic.com/library/edge/?source=SDK&id=plugin__xml.html
 for the documentation about the plugin xml format
 -->
 <PluginModule>
-  <EffectPlugin Name="Delay" CompanyID="64" PluginID="6240">
-    <PluginInfo>
-      <PlatformSupport>
-        <Platform Name="Any">
-          <CanBeInsertOnBusses>true</CanBeInsertOnBusses>
-          <CanBeInsertOnAudioObjects>true</CanBeInsertOnAudioObjects>
-          <CanBeRendered>true</CanBeRendered>
-        </Platform>
-      </PlatformSupport>
-    </PluginInfo>
-    <Properties>
-
-			<Property Name="DryWet" Type="Real32" SupportRTPCType="Exclusive" DisplayName="DryWet">
-        <UserInterface Step="0.01" Fine="0.001" Decimals="3" UIMax="1" />
-        <DefaultValue>0.5</DefaultValue>
-        <AudioEnginePropertyID>0</AudioEnginePropertyID>
-        <Restrictions>
-          <ValueRestriction>
-            <Range Type="Real32">
-              <Min>0.0</Min>
-              <Max>1.0</Max>
-            </Range>
-          </ValueRestriction>
-        </Restrictions>
-      </Property>
-
-			<Property Name="Feedback" Type="Real32" SupportRTPCType="Exclusive" DisplayName="Feedback">
-				<UserInterface Step="0.01" Fine="0.001" Decimals="3" UIMax="0.98" />
-				<DefaultValue>0.5</DefaultValue>
-				<AudioEnginePropertyID>1</AudioEnginePropertyID>
-				<Restrictions>
-					<ValueRestriction>
-						<Range Type="Real32">
-							<Min>0.0</Min>
-							<Max>0.98</Max>
-						</Range>
-					</ValueRestriction>
-				</Restrictions>
-			</Property>
-
-			<Property Name="DelayTime" Type="Real32" SupportRTPCType="Exclusive" DisplayName="DelayTime">
-				<UserInterface Step="0.01" Fine="0.001" Decimals="3" UIMax="2.0" />
-				<DefaultValue>0.5</DefaultValue>
-				<AudioEnginePropertyID>2</AudioEnginePropertyID>
-				<Restrictions>
-					<ValueRestriction>
-						<Range Type="Real32">
-							<Min>0.01</Min>
-							<Max>2.0</Max>
-						</Range>
-					</ValueRestriction>
-				</Restrictions>
-			</Property>
-
-
-			
-			<Property Name="Depth" Type="Real32" SupportRTPCType="Exclusive" DisplayName="Depth">
-				<UserInterface Step="0.01" Fine="0.001" Decimals="3" UIMax="2.0" />
-				<DefaultValue>0.5</DefaultValue>
-				<AudioEnginePropertyID>3</AudioEnginePropertyID>
-				<Restrictions>
-					<ValueRestriction>
-						<Range Type="Real32">
-							<Min>0.01</Min>
-							<Max>2.0</Max>
-						</Range>
-					</ValueRestriction>
-				</Restrictions>
-			</Property>
-
-			<Property Name="Rate" Type="Real32" SupportRTPCType="Exclusive" DisplayName="Rate">
-				<UserInterface Step="0.01" Fine="0.001" Decimals="3" UIMax="2.0" />
-				<DefaultValue>0.5</DefaultValue>
-				<AudioEnginePropertyID>4</AudioEnginePropertyID>
-				<Restrictions>
-					<ValueRestriction>
-						<Range Type="Real32">
-							<Min>0.01</Min>
-							<Max>2.0</Max>
-						</Range>
-					</ValueRestriction>
-				</Restrictions>
-			</Property>
-
-			
-			<Property Name="PhaseOffset" Type="Real32" SupportRTPCType="Exclusive" DisplayName="PhaseOffset">
-				<UserInterface Step="0.01" Fine="0.001" Decimals="3" UIMax="2.0" />
-				<DefaultValue>0.5</DefaultValue>
-				<AudioEnginePropertyID>5</AudioEnginePropertyID>
-				<Restrictions>
-					<ValueRestriction>
-						<Range Type="Real32">
-							<Min>0.01</Min>
-							<Max>2.0</Max>
-						</Range>
-					</ValueRestriction>
-				</Restrictions>
-			</Property>
-			
-    </Properties>
-  </EffectPlugin>
+   <EffectPlugin Name="Delay" CompanyID="64" PluginID="6240">
+      <PluginInfo>
+         <PlatformSupport>
+            <Platform Name="Any">
+               <CanBeInsertOnBusses>true</CanBeInsertOnBusses>
+               <CanBeInsertOnAudioObjects>true</CanBeInsertOnAudioObjects>
+               <CanBeRendered>true</CanBeRendered>
+            </Platform>
+         </PlatformSupport>
+      </PluginInfo>
+      <Properties>
+         <Property Name="DryWet" Type="Real32" SupportRTPCType="Exclusive" DisplayName="DryWet">
+            <UserInterface Step="0.01" Fine="0.001" Decimals="3" UIMax="1.0" />
+            <DefaultValue>0.5</DefaultValue>
+            <AudioEnginePropertyID>0</AudioEnginePropertyID>
+            <Restrictions>
+               <ValueRestriction>
+                  <Range Type="Real32">
+                     <Min>0.0</Min>
+                     <Max>1.0</Max>
+                  </Range>
+               </ValueRestriction>
+            </Restrictions>
+         </Property>
+         <Property Name="Feedback" Type="Real32" SupportRTPCType="Exclusive" DisplayName="Feedback">
+            <UserInterface Step="0.01" Fine="0.001" Decimals="3" UIMax="0.98" />
+            <DefaultValue>0.5</DefaultValue>
+            <AudioEnginePropertyID>1</AudioEnginePropertyID>
+            <Restrictions>
+               <ValueRestriction>
+                  <Range Type="Real32">
+                     <Min>0.0</Min>
+                     <Max>0.98</Max>
+                  </Range>
+               </ValueRestriction>
+            </Restrictions>
+         </Property>
+         <Property Name="DelayTime" Type="Real32" SupportRTPCType="Exclusive" DisplayName="DelayTime">
+            <UserInterface Step="0.01" Fine="0.001" Decimals="3" UIMax="2.0" />
+            <DefaultValue>0.5</DefaultValue>
+            <AudioEnginePropertyID>2</AudioEnginePropertyID>
+            <Restrictions>
+               <ValueRestriction>
+                  <Range Type="Real32">
+                     <Min>0.01</Min>
+                     <Max>2.0</Max>
+                  </Range>
+               </ValueRestriction>
+            </Restrictions>
+         </Property>
+         <Property Name="Depth" Type="Real32" SupportRTPCType="Exclusive" DisplayName="Depth">
+            <UserInterface Step="0.01" Fine="0.001" Decimals="3" UIMax="1.0" />
+            <DefaultValue>0.5</DefaultValue>
+            <AudioEnginePropertyID>3</AudioEnginePropertyID>
+            <Restrictions>
+               <ValueRestriction>
+                  <Range Type="Real32">
+                     <Min>0.0</Min>
+                     <Max>1.0</Max>
+                  </Range>
+               </ValueRestriction>
+            </Restrictions>
+         </Property>
+         <Property Name="Rate" Type="Real32" SupportRTPCType="Exclusive" DisplayName="Rate">
+            <UserInterface Step="0.01" Fine="0.001" Decimals="3" UIMax="20.0" />
+            <DefaultValue>10.0</DefaultValue>
+            <AudioEnginePropertyID>4</AudioEnginePropertyID>
+            <Restrictions>
+               <ValueRestriction>
+                  <Range Type="Real32">
+                     <Min>0.1</Min>
+                     <Max>20.0</Max>
+                  </Range>
+               </ValueRestriction>
+            </Restrictions>
+         </Property>
+         <Property Name="PhaseOffset" Type="Real32" SupportRTPCType="Exclusive" DisplayName="PhaseOffset">
+            <UserInterface Step="0.01" Fine="0.001" Decimals="3" UIMax="1.0" />
+            <DefaultValue>0.0</DefaultValue>
+            <AudioEnginePropertyID>5</AudioEnginePropertyID>
+            <Restrictions>
+               <ValueRestriction>
+                  <Range Type="Real32">
+                     <Min>0.0</Min>
+                     <Max>1.0</Max>
+                  </Range>
+               </ValueRestriction>
+            </Restrictions>
+         </Property>
+         <Property Name="Type" Type="Uint32" DisplayName="Type">
+            <DefaultValue>0</DefaultValue>
+            <AudioEnginePropertyID>6</AudioEnginePropertyID>
+            <Restrictions>
+               <ValueRestriction>
+                  <Enumeration Type="Uint32">
+                     <Value DisplayName="0">0</Value>
+                     <Value DisplayName="1">1</Value>
+                  </Enumeration>
+               </ValueRestriction>
+            </Restrictions>
+         </Property>
+      </Properties>
+   </EffectPlugin>
 </PluginModule>

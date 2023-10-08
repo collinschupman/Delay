@@ -14,14 +14,15 @@ private:
     float phase = 0.f;
 
 public:
-    float get(float lfoRate, AkUInt32 sampleRate)
+    float get(float rate, float phaseOffset, AkUInt32 sampleRate)
     {
-        float lfoOut = sin(2 * M_PI * phase);
-        phase += lfoRate * sampleRate;
+        phase += phaseOffset;
+        const float out = static_cast<float>(sin(2.0f * M_PI * phase));
+        phase += rate / sampleRate; 
         if (phase >= 1.f)
         {
             phase -= 1.f;
         }
-        return sin(2 * M_PI * phase);
+        return out;
     }
 };
