@@ -11,17 +11,21 @@
 struct LFO
 {
 private:
-    float phase = 0.f;
+    float mCurrentPhase = 0.f;
 
 public:
     float get(float rate, float phaseOffset, AkUInt32 sampleRate)
     {
-        phase += phaseOffset;
-        const float out = static_cast<float>(sin(2.0f * M_PI * phase));
-        phase += rate / sampleRate; 
-        if (phase >= 1.f)
+        float offsetPhase = mCurrentPhase + phaseOffset;
+        if (offsetPhase >= 1.f)
         {
-            phase -= 1.f;
+            offsetPhase -= 1.f;
+        }
+        const float out = static_cast<float>(sin(2.0f * M_PI * offsetPhase));
+        mCurrentPhase += rate / sampleRate;
+        if (mCurrentPhase >= 1.f)
+        {
+            mCurrentPhase -= 1.f;
         }
         return out;
     }

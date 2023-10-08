@@ -7,12 +7,9 @@ AKRESULT ChorusFlanger::Init(AkUInt32 inSampleRate, float delayTime, float maxDe
 {
     mSampleRate = inSampleRate;
 
-    // mDelayTimeSamples = mSampleRate * delayTime;
-    // mDelayTimeSmoothed = delayTime;
-
     for (int i = 0; i < mOffsets.size(); i++)
     {
-        mOffsets[i] = 0.f;
+        mOffsets[i] = 0.f; // TD: memzero
     }
 
     for (Delayline &delayLine : mDelaylines)
@@ -38,7 +35,17 @@ void ChorusFlanger::Execute(AkAudioBuffer *io_pBuffer, AkReal32 pDepth, AkReal32
         {
             Delayline &delayLine = mDelaylines[i];
 
-            auto lfoOutMaped = CS::jmap(mLFOs[i].get(pRate, mOffsets[i], mSampleRate) * pDepth, -1.f, 1.f, 0.005f, 0.03f);
+            float lfoOutMaped = 0.f;
+            if (pType == 0)
+            {
+                // chorus
+                lfoOutMaped = CS::jmap(mLFOs[i].get(pRate, mOffsets[i], mSampleRate) * pDepth, -1.f, 1.f, 0.005f, 0.03f); // TD: DRY, MAGIC NUMBERS
+            }
+            else
+            {
+                // flanger //TD: self document
+                lfoOutMaped = CS::jmap(mLFOs[i].get(pRate, mOffsets[i], mSampleRate) * pDepth, -1.f, 1.f, 0.001f, 0.005f); // TD: DRY, MAGIC NUMBERS
+            }
 
             const auto delayTimeSamples = mSampleRate * lfoOutMaped;
 

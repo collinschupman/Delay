@@ -14,10 +14,8 @@ struct ChorusFlanger
 private:
     std::array<Delayline, 2> mDelaylines;
     AkUInt32 mSampleRate = 0;
-    //float mDelayTimeSmoothed = 0.f;
-    //float mDelayTimeSamples = 0.f;
-    std::array<LFO,2> mLFOs;
-    std::array<float,2> mOffsets;
+    std::array<LFO, 2> mLFOs;
+    std::array<float, 2> mOffsets;
 
 public:
     AKRESULT Init(AkUInt32 inSampleRate, float delayTime, float maxDelayTime);
