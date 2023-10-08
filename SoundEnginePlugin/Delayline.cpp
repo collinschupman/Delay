@@ -15,7 +15,7 @@ void Delayline::process(AkReal32 *pBuf, AkUInt16 pBufPos, float inFeedback, floa
     int readHead_x1 = readHead_x + 1;
     if (readHead_x1 >= circularBuffer->length)
     {
-        readHead_x1 - circularBuffer->length;
+        readHead_x1 -= circularBuffer->length;
     }
     float readHeadFloat = circularBuffer->readHead - readHead_x;
 
