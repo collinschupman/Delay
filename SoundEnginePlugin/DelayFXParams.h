@@ -36,15 +36,19 @@ static const AkPluginParamID PARAM_DELAY_TIME_ID = 2;
 
 static const AkUInt32 NUM_PARAMS = 3;
 
-struct DelayRTPCParams {
+struct DelayRTPCParams
+{
   AkReal32 fDryWet;
   AkReal32 fFeedback;
   AkReal32 fDelayTime;
 };
 
-struct DelayNonRTPCParams {};
+struct DelayNonRTPCParams
+{
+};
 
-struct DelayFXParams : public AK::IAkPluginParam {
+struct DelayFXParams : public AK::IAkPluginParam
+{
   DelayFXParams();
   DelayFXParams(const DelayFXParams &in_rParams);
 

@@ -82,6 +82,51 @@ for the documentation about the plugin xml format
 					</ValueRestriction>
 				</Restrictions>
 			</Property>
+
+
+			
+			<Property Name="Depth" Type="Real32" SupportRTPCType="Exclusive" DisplayName="Depth">
+				<UserInterface Step="0.01" Fine="0.001" Decimals="3" UIMax="2.0" />
+				<DefaultValue>0.5</DefaultValue>
+				<AudioEnginePropertyID>3</AudioEnginePropertyID>
+				<Restrictions>
+					<ValueRestriction>
+						<Range Type="Real32">
+							<Min>0.01</Min>
+							<Max>2.0</Max>
+						</Range>
+					</ValueRestriction>
+				</Restrictions>
+			</Property>
+
+			<Property Name="Rate" Type="Real32" SupportRTPCType="Exclusive" DisplayName="Rate">
+				<UserInterface Step="0.01" Fine="0.001" Decimals="3" UIMax="2.0" />
+				<DefaultValue>0.5</DefaultValue>
+				<AudioEnginePropertyID>4</AudioEnginePropertyID>
+				<Restrictions>
+					<ValueRestriction>
+						<Range Type="Real32">
+							<Min>0.01</Min>
+							<Max>2.0</Max>
+						</Range>
+					</ValueRestriction>
+				</Restrictions>
+			</Property>
+
+			
+			<Property Name="PhaseOffset" Type="Real32" SupportRTPCType="Exclusive" DisplayName="PhaseOffset">
+				<UserInterface Step="0.01" Fine="0.001" Decimals="3" UIMax="2.0" />
+				<DefaultValue>0.5</DefaultValue>
+				<AudioEnginePropertyID>5</AudioEnginePropertyID>
+				<Restrictions>
+					<ValueRestriction>
+						<Range Type="Real32">
+							<Min>0.01</Min>
+							<Max>2.0</Max>
+						</Range>
+					</ValueRestriction>
+				</Restrictions>
+			</Property>
 			
     </Properties>
   </EffectPlugin>

@@ -28,15 +28,8 @@ the specific language governing permissions and limitations under the License.
 #define DelayFX_H
 
 #include "DelayFXParams.h"
-#include <memory>
-#include <array>
-#include <cassert>
-
-#define MAX_DELAY_TIME 2
-
-// helpers
-float lerp(float sample_x, float sample_x1, float phase);
-float _smoothParameter(float inParameterSmoothed, float inNewParameter);
+#include "ChorusFlanger.h"
+#include "Delay.h"
 
 class DelayFX : public AK::IAkInPlaceEffectPlugin
 {
@@ -66,147 +59,7 @@ private:
 
   AkUInt32 mSampleRate;
 
-  struct CircularBuffer
-  {
-    int length = 0;
-    float readHead = 0.f;
-    int writeHead = 0;
-    float *buffer = nullptr;
-  };
-
-  struct Delayline
-  {
-  private:
-    float mFeedback = 0.f;
-
-  public:
-    std::unique_ptr<CircularBuffer> circularBuffer = nullptr;
-    void write(float inValue)
-    {
-      circularBuffer->buffer[circularBuffer->writeHead] =
-          inValue + mFeedback;
-    }
-
-    void process(AkReal32 *AK_RESTRICT pBuf, AkUInt16 pBufPos, float inFeedback, float dryWet)
-    {
-      int readHead_x = (int)circularBuffer->readHead;
-      int readHead_x1 = readHead_x + 1;
-      if (readHead_x1 >= circularBuffer->length)
-      {
-        readHead_x1 - circularBuffer->length;
-      }
-      float readHeadFloat = circularBuffer->readHead - readHead_x;
-
-      float delayedSample =
-          lerp(circularBuffer->buffer[readHead_x],
-               circularBuffer->buffer[readHead_x1], readHeadFloat);
-
-      mFeedback = delayedSample * inFeedback;
-
-      pBuf[pBufPos] =
-          delayedSample * dryWet +
-          pBuf[pBufPos] * (1.f - dryWet);
-    }
-
-    void updateReadHead(float delayTime)
-    {
-      circularBuffer->readHead = circularBuffer->writeHead - delayTime;
-      if (circularBuffer->readHead < 0)
-      {
-        circularBuffer->readHead += circularBuffer->length;
-      }
-    }
-
-    void updateWriteHead()
-    {
-      ++circularBuffer->writeHead;
-      if (circularBuffer->writeHead >= circularBuffer->length)
-      {
-        circularBuffer->writeHead = 0;
-      }
-    }
-  };
-
-  struct Delay
-  {
-  private:
-    std::array<DelayFX::Delayline, 2> mDelaylines;
-    AkUInt32 mSampleRate = 0;
-    float mDelayTimeSmoothed = 0.f;
-    float mDelayTimeSamples = 0.f;
-
-  public:
-    ~Delay()
-    {
-      for (Delayline &delayLine : mDelaylines)
-      {
-        if (delayLine.circularBuffer)
-        {
-          delete[] delayLine.circularBuffer->buffer;
-          delayLine.circularBuffer->buffer = nullptr;
-        }
-      }
-    }
-
-    AKRESULT Init(AkUInt32 inSampleRate, float delayTime)
-    {
-      mSampleRate = inSampleRate;
-
-      mDelayTimeSamples = mSampleRate * delayTime;
-      mDelayTimeSmoothed = delayTime;
-
-      for (Delayline &delayLine : mDelaylines)
-      {
-
-        if (!delayLine.circularBuffer)
-        {
-          delayLine.circularBuffer = std::make_unique<CircularBuffer>();
-          delayLine.circularBuffer->length = mSampleRate * MAX_DELAY_TIME;
-          delayLine.circularBuffer->buffer = new float[delayLine.circularBuffer->length];
-        }
-
-        for (AkUInt32 j = 0; j < delayLine.circularBuffer->length; ++j)
-        {
-          delayLine.circularBuffer->buffer[j] = 0.0f;
-        }
-        delayLine.circularBuffer->readHead = 0;
-        delayLine.circularBuffer->writeHead = 0;
-      }
-
-      return AK_Success;
-    }
-
-    void Execute(AkAudioBuffer *io_pBuffer, DelayFXParams *m_pParams)
-    {
-      assert(io_pBuffer->NumChannels() == mDelaylines.size());
-
-      AkUInt16 numFramesProcessed = 0;
-      while (numFramesProcessed < io_pBuffer->uValidFrames)
-      {
-        mDelayTimeSmoothed = _smoothParameter(mDelayTimeSmoothed, m_pParams->RTPC.fDelayTime);
-        mDelayTimeSamples = mSampleRate * mDelayTimeSmoothed;
-
-        for (int i = 0; i < io_pBuffer->NumChannels(); i++)
-        {
-          Delayline &delayLine = mDelaylines[i];
-
-          AkReal32 *AK_RESTRICT pBuf =
-              (AkReal32 * AK_RESTRICT) io_pBuffer->GetChannel(i);
-
-          delayLine.write(pBuf[numFramesProcessed]);
-
-          delayLine.updateReadHead(mDelayTimeSamples);
-
-          delayLine.process(pBuf, numFramesProcessed, m_pParams->RTPC.fFeedback, m_pParams->RTPC.fDryWet);
-
-          delayLine.updateWriteHead();
-        }
-
-        ++numFramesProcessed;
-      }
-    }
-  };
-
+  ChorusFlanger mChorusFlangerModule;
   Delay mDelayModule;
 };
 

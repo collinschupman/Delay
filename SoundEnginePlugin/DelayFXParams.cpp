@@ -32,20 +32,24 @@ DelayFXParams::DelayFXParams() {}
 
 DelayFXParams::~DelayFXParams() {}
 
-DelayFXParams::DelayFXParams(const DelayFXParams &in_rParams) {
+DelayFXParams::DelayFXParams(const DelayFXParams &in_rParams)
+{
   RTPC = in_rParams.RTPC;
   NonRTPC = in_rParams.NonRTPC;
   m_paramChangeHandler.SetAllParamChanges();
 }
 
-AK::IAkPluginParam *DelayFXParams::Clone(AK::IAkPluginMemAlloc *in_pAllocator) {
+AK::IAkPluginParam *DelayFXParams::Clone(AK::IAkPluginMemAlloc *in_pAllocator)
+{
   return AK_PLUGIN_NEW(in_pAllocator, DelayFXParams(*this));
 }
 
 AKRESULT DelayFXParams::Init(AK::IAkPluginMemAlloc *in_pAllocator,
                              const void *in_pParamsBlock,
-                             AkUInt32 in_ulBlockSize) {
-  if (in_ulBlockSize == 0) {
+                             AkUInt32 in_ulBlockSize)
+{
+  if (in_ulBlockSize == 0)
+  {
     RTPC.fDryWet = 0.5f;
     RTPC.fFeedback = 0.5f;
     RTPC.fDelayTime = 2.f;
@@ -56,13 +60,15 @@ AKRESULT DelayFXParams::Init(AK::IAkPluginMemAlloc *in_pAllocator,
   return SetParamsBlock(in_pParamsBlock, in_ulBlockSize);
 }
 
-AKRESULT DelayFXParams::Term(AK::IAkPluginMemAlloc *in_pAllocator) {
+AKRESULT DelayFXParams::Term(AK::IAkPluginMemAlloc *in_pAllocator)
+{
   AK_PLUGIN_DELETE(in_pAllocator, this);
   return AK_Success;
 }
 
 AKRESULT DelayFXParams::SetParamsBlock(const void *in_pParamsBlock,
-                                       AkUInt32 in_ulBlockSize) {
+                                       AkUInt32 in_ulBlockSize)
+{
   AKRESULT eResult = AK_Success;
   AkUInt8 *pParamsBlock = (AkUInt8 *)in_pParamsBlock;
 
@@ -79,11 +85,13 @@ AKRESULT DelayFXParams::SetParamsBlock(const void *in_pParamsBlock,
 
 AKRESULT DelayFXParams::SetParam(AkPluginParamID in_paramID,
                                  const void *in_pValue,
-                                 AkUInt32 in_ulParamSize) {
+                                 AkUInt32 in_ulParamSize)
+{
   AKRESULT eResult = AK_Success;
 
   // Handle parameter change here
-  switch (in_paramID) {
+  switch (in_paramID)
+  {
   case PARAM_DRYWET_ID:
     RTPC.fDryWet = *((AkReal32 *)in_pValue);
     m_paramChangeHandler.SetParamChange(PARAM_DRYWET_ID);

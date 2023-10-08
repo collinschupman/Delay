@@ -60,7 +60,8 @@ AKRESULT DelayFX::Init(AK::IAkPluginMemAlloc *in_pAllocator,
   m_pContext = in_pContext;
   mSampleRate = in_rFormat.uSampleRate;
 
-  mDelayModule.Init(mSampleRate, m_pParams->RTPC.fDelayTime);
+  mDelayModule.Init(mSampleRate, m_pParams->RTPC.fDelayTime, MAX_DELAY_TIME);
+  // mChorusFlangerModule.Init(mSampleRate, m_pParams->RTPC.fDelayTime, MAX_DELAY_TIME);
 
   return AK_Success;
 }
@@ -84,18 +85,8 @@ AKRESULT DelayFX::GetPluginInfo(AkPluginInfo &out_rPluginInfo)
 
 void DelayFX::Execute(AkAudioBuffer *io_pBuffer)
 {
-  mDelayModule.Execute(io_pBuffer, m_pParams);
+  mDelayModule.Execute(io_pBuffer, m_pParams->RTPC.fDelayTime, m_pParams->RTPC.fFeedback, m_pParams->RTPC.fDryWet);
+  // mChorusFlangerModule.Execute(io_pBuffer, m_pParams->RTPC.fDelayTime, m_pParams->RTPC.fFeedback, m_pParams->RTPC.fDryWet);
 }
 
 AKRESULT DelayFX::TimeSkip(AkUInt32 in_uFrames) { return AK_DataReady; }
-
-float lerp(float sample_x, float sample_x1, float phase)
-{
-  return (1 - phase) * sample_x + phase * sample_x1;
-}
-
-float _smoothParameter(float inParameterSmoothed, float inNewParameter)
-{
-  return inParameterSmoothed -
-         0.0001 * (inParameterSmoothed - inNewParameter);
-}
