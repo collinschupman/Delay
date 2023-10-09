@@ -1,15 +1,26 @@
 #pragma once
 
+#include <memory>
+
 struct CircularBuffer
 {
+public:
     CircularBuffer(float inSampleRate, float maxDelayTime);
+    void Init();
+    void write(float inValue);
 
-    ~CircularBuffer();
+    void updateWriteHead();
 
-    void reset();
+    void updateReadHead(float delayTime);
 
-    int length = 0;
+    float getReadHead() const;
+    float getNextReadHead() const;
+
+    float getValue(unsigned position) const;
+
+private:
+    std::size_t length = 0;
     float readHead = 0.f;
-    int writeHead = 0;
-    float *buffer = nullptr;
+    unsigned writeHead = 0;
+    std::unique_ptr<float[]> buffer = nullptr;
 };

@@ -10,30 +10,26 @@ AKRESULT Delayline::Init(AkUInt32 inSampleRate, float maxDelayTime)
         circularBuffer = std::make_unique<CircularBuffer>(inSampleRate, maxDelayTime);
     }
 
-    circularBuffer->reset();
+    circularBuffer->Init();
 
     return AK_Success;
 }
 
 void Delayline::write(float inValue)
 {
-    circularBuffer->buffer[circularBuffer->writeHead] =
-        inValue + mFeedback;
+    circularBuffer->write(inValue + mFeedback);
 }
 
 void Delayline::process(AkReal32 *pBuf, AkUInt16 pBufPos, float inFeedback, float dryWet)
 {
-    int readHead_x = (int)circularBuffer->readHead;
-    int readHead_x1 = readHead_x + 1;
-    if (readHead_x1 >= circularBuffer->length)
-    {
-        readHead_x1 -= circularBuffer->length;
-    }
-    float readHeadFloat = circularBuffer->readHead - readHead_x;
+    const unsigned readHeadInt = static_cast<unsigned>(circularBuffer->getReadHead());
 
-    float delayedSample =
-        CS::lerp(circularBuffer->buffer[readHead_x],
-                 circularBuffer->buffer[readHead_x1], readHeadFloat);
+    const float readHeadFraction = circularBuffer->getReadHead() - readHeadInt;
+    const unsigned readHeadNext = static_cast<unsigned>(circularBuffer->getNextReadHead());
+
+    const float delayedSample =
+        CS::lerp(circularBuffer->getValue(readHeadInt),
+                 circularBuffer->getValue(readHeadNext), readHeadFraction);
 
     mFeedback = delayedSample * inFeedback;
 
@@ -44,18 +40,10 @@ void Delayline::process(AkReal32 *pBuf, AkUInt16 pBufPos, float inFeedback, floa
 
 void Delayline::updateReadHead(float delayTime)
 {
-    circularBuffer->readHead = circularBuffer->writeHead - delayTime;
-    if (circularBuffer->readHead < 0)
-    {
-        circularBuffer->readHead += circularBuffer->length;
-    }
+    circularBuffer->updateReadHead(delayTime);
 }
 
 void Delayline::updateWriteHead()
 {
-    ++circularBuffer->writeHead;
-    if (circularBuffer->writeHead >= circularBuffer->length)
-    {
-        circularBuffer->writeHead = 0;
-    }
+    circularBuffer->updateWriteHead();
 }

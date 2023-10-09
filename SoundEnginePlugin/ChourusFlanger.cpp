@@ -24,41 +24,42 @@ void ChorusFlanger::Execute(AkAudioBuffer *io_pBuffer, AkReal32 pDepth, AkReal32
 {
     assert(io_pBuffer->NumChannels() == mDelaylines.size());
 
+    static constexpr float kLFOMin = -1.f;
+    static constexpr float kLFOMax = 1.f;
+    static constexpr float kFiveMilliseconds = 0.005f;
+    static constexpr float kOneMillisecond = 0.001f;
+    static constexpr float kThirtyMilliseconds = 0.03f;
+
     AkUInt16 numFramesProcessed = 0;
     while (numFramesProcessed < io_pBuffer->uValidFrames)
     {
 
-        // offset the right channel;
-        mOffsets[1] = pPhaseOffset;
+        mOffsets[1] = pPhaseOffset; // offset the right channel;
 
         for (AkUInt32 i = 0; i < io_pBuffer->NumChannels(); i++)
         {
-            Delayline &delayLine = mDelaylines[i];
-
-            float lfoOutMaped = 0.f;
-            if (pType == 0)
-            {
-                // chorus
-                lfoOutMaped = CS::jmap(mLFOs[i].get(pRate, mOffsets[i], mSampleRate) * pDepth, -1.f, 1.f, 0.005f, 0.03f); // TD: DRY, MAGIC NUMBERS
-            }
-            else
-            {
-                // flanger //TD: self document
-                lfoOutMaped = CS::jmap(mLFOs[i].get(pRate, mOffsets[i], mSampleRate) * pDepth, -1.f, 1.f, 0.001f, 0.005f); // TD: DRY, MAGIC NUMBERS
-            }
-
-            const auto delayTimeSamples = mSampleRate * lfoOutMaped;
 
             AkReal32 *AK_RESTRICT pBuf =
                 (AkReal32 * AK_RESTRICT) io_pBuffer->GetChannel(i);
 
-            delayLine.write(pBuf[numFramesProcessed]);
+            mDelaylines[i].write(pBuf[numFramesProcessed]);
 
-            delayLine.updateReadHead(delayTimeSamples);
+            float delayTimeSamples = 0.f;
+            if (pType == 0) // chorus
+            {
+                delayTimeSamples = CS::jmap(mLFOs[i].get(pRate, mOffsets[i], mSampleRate) * pDepth, kLFOMin, kLFOMax, kFiveMilliseconds, kThirtyMilliseconds) * mSampleRate;
+            }
+            else // flanger //TD: self document
+            {
 
-            delayLine.process(pBuf, numFramesProcessed, pFeedback, pDryWet);
+                delayTimeSamples = CS::jmap(mLFOs[i].get(pRate, mOffsets[i], mSampleRate) * pDepth, kLFOMin, kLFOMax, kOneMillisecond, kFiveMilliseconds) * mSampleRate;
+            }
 
-            delayLine.updateWriteHead();
+            mDelaylines[i].updateReadHead(delayTimeSamples);
+
+            mDelaylines[i].process(pBuf, numFramesProcessed, pFeedback, pDryWet);
+
+            mDelaylines[i].updateWriteHead();
         }
 
         ++numFramesProcessed;
