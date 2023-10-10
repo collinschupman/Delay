@@ -15,6 +15,7 @@ private:
     AkUInt32 mSampleRate = 0;
     AkReal32 mDelayTimeSmoothed = 0.f;
     AkReal32 mDelayTimeSamples = 0.f;
+    AkReal32 mFeedback = 0.f;
 
 public:
     AKRESULT Init(AkUInt32 inSampleRate, AkReal32 delayTime, AkReal32 maxDelayTime);

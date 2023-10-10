@@ -47,7 +47,7 @@ void ChorusFlanger::Execute(AkAudioBuffer *io_pBuffer, AkReal32 pDepth, AkReal32
             AkReal32 *AK_RESTRICT pBuf =
                 (AkReal32 * AK_RESTRICT) io_pBuffer->GetChannel(i);
 
-            mDelaylines[i].write(pBuf[numFramesProcessed]);
+            mDelaylines[i].write(pBuf[numFramesProcessed] + mFeedback);
 
             float delayTimeSamples = 0.f;
             if (pType == 0) // chorus
@@ -62,7 +62,13 @@ void ChorusFlanger::Execute(AkAudioBuffer *io_pBuffer, AkReal32 pDepth, AkReal32
 
             mDelaylines[i].updateReadHead(delayTimeSamples);
 
-            mDelaylines[i].process(pBuf, numFramesProcessed, pFeedbackSmooth, pDryWetSmooth);
+            const auto delayedSample = mDelaylines[i].read(); // get the delayed sample
+            mFeedback = delayedSample * pFeedback; // update the feedback
+
+            pBuf[numFramesProcessed] =
+                delayedSample * pDryWet +
+                pBuf[numFramesProcessed] * (1.f - pDryWet); //output
+
 
             mDelaylines[i].updateWriteHead();
         }

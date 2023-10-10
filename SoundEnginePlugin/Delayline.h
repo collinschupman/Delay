@@ -11,7 +11,6 @@
 struct Delayline
 {
 private:
-    AkReal32 mFeedback = 0.f;
     std::unique_ptr<CircularBuffer> circularBuffer = nullptr;
 
 public:
@@ -19,7 +18,7 @@ public:
 
     void write(AkReal32 inValue);
 
-    void process(AkReal32 *pBuf, AkUInt16 pBufPos, AkReal32 inFeedback, AkReal32 dryWet);
+    AkReal32 read();
 
     void updateReadHead(AkReal32 delayTime);
 

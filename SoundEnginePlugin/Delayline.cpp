@@ -17,25 +17,18 @@ AKRESULT Delayline::Init(AkUInt32 inSampleRate, AkReal32 maxDelayTime)
 
 void Delayline::write(AkReal32 inValue)
 {
-    circularBuffer->write(inValue + mFeedback);
+    circularBuffer->write(inValue);
 }
 
-void Delayline::process(AkReal32 *pBuf, AkUInt16 pBufPos, AkReal32 inFeedback, AkReal32 dryWet)
+AkReal32 Delayline::read()
 {
     const unsigned readHeadInt = static_cast<unsigned>(circularBuffer->getReadHead());
 
     const AkReal32 readHeadFraction = circularBuffer->getReadHead() - readHeadInt;
     const unsigned readHeadNext = static_cast<unsigned>(circularBuffer->getNextReadHead());
 
-    const AkReal32 delayedSample =
-        CS::lerp(circularBuffer->getValue(readHeadInt),
+    return CS::lerp(circularBuffer->getValue(readHeadInt),
                  circularBuffer->getValue(readHeadNext), readHeadFraction);
-
-    mFeedback = delayedSample * inFeedback;
-
-    pBuf[pBufPos] =
-        delayedSample * dryWet +
-        pBuf[pBufPos] * (1.f - dryWet);
 }
 
 void Delayline::updateReadHead(AkReal32 delayTime)

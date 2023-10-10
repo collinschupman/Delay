@@ -21,6 +21,7 @@ private:
     AkReal32 pPhaseOffsetSmooth;
     AkReal32 pFeedbackSmooth;
     AkReal32 pDryWetSmooth;
+    AkReal32 mFeedback = 0.f;
 
 public:
     AKRESULT Init(AkUInt32 inSampleRate, AkReal32 delayTime, AkReal32 maxDelayTime);

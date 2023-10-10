@@ -29,18 +29,21 @@ void Delay::Execute(AkAudioBuffer *io_pBuffer, AkReal32 pDelayTime, AkReal32 pFe
 
         for (AkUInt32 i = 0; i < io_pBuffer->NumChannels(); i++)
         {
-            Delayline &delayLine = mDelaylines[i];
-
             AkReal32 *AK_RESTRICT pBuf =
                 (AkReal32 * AK_RESTRICT) io_pBuffer->GetChannel(i);
 
-            delayLine.write(pBuf[numFramesProcessed]);
+            mDelaylines[i].write(pBuf[numFramesProcessed] + mFeedback); // store the incoming sample for delay d(n)
 
-            delayLine.updateReadHead(mDelayTimeSamples);
+            mDelaylines[i].updateReadHead(mDelayTimeSamples); // update the read head
 
-            delayLine.process(pBuf, numFramesProcessed, pFeedback, pDryWet);
+            const auto delayedSample = mDelaylines[i].read(); // get the delayed sample
+            mFeedback = delayedSample * pFeedback; // update the feedback
 
-            delayLine.updateWriteHead();
+            pBuf[numFramesProcessed] =
+                delayedSample * pDryWet +
+                pBuf[numFramesProcessed] * (1.f - pDryWet); //output
+
+            mDelaylines[i].updateWriteHead(); // update the write head
         }
 
         ++numFramesProcessed;
