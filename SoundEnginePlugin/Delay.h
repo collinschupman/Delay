@@ -13,11 +13,11 @@ struct Delay
 private:
     std::array<Delayline, 2> mDelaylines;
     AkUInt32 mSampleRate = 0;
-    float mDelayTimeSmoothed = 0.f;
-    float mDelayTimeSamples = 0.f;
+    AkReal32 mDelayTimeSmoothed = 0.f;
+    AkReal32 mDelayTimeSamples = 0.f;
 
 public:
-    AKRESULT Init(AkUInt32 inSampleRate, float delayTime, float maxDelayTime);
+    AKRESULT Init(AkUInt32 inSampleRate, AkReal32 delayTime, AkReal32 maxDelayTime);
 
     void Execute(AkAudioBuffer *io_pBuffer, AkReal32 pDelayTime, AkReal32 pFeedback, AkReal32 pDryWet);
 };

@@ -2,7 +2,7 @@
 
 #include <cassert>
 
-AKRESULT Delay::Init(AkUInt32 inSampleRate, float delayTime, float maxDelayTime)
+AKRESULT Delay::Init(AkUInt32 inSampleRate, AkReal32 delayTime, AkReal32 maxDelayTime)
 {
     mSampleRate = inSampleRate;
 
@@ -24,10 +24,10 @@ void Delay::Execute(AkAudioBuffer *io_pBuffer, AkReal32 pDelayTime, AkReal32 pFe
     AkUInt16 numFramesProcessed = 0;
     while (numFramesProcessed < io_pBuffer->uValidFrames)
     {
-        mDelayTimeSmoothed = CS::smoothParameter(mDelayTimeSmoothed, pDelayTime);
+        mDelayTimeSmoothed = CS::smoothParameter(mDelayTimeSmoothed, pDelayTime, CS::kParamCoeff_Fine);
         mDelayTimeSamples = mSampleRate * mDelayTimeSmoothed;
 
-        for (int i = 0; i < io_pBuffer->NumChannels(); i++)
+        for (AkUInt32 i = 0; i < io_pBuffer->NumChannels(); i++)
         {
             Delayline &delayLine = mDelaylines[i];
 

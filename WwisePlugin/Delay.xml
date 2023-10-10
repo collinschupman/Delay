@@ -40,7 +40,7 @@ for the documentation about the plugin xml format
          </PlatformSupport>
       </PluginInfo>
       <Properties>
-         <Property Name="DryWet" Type="Real32" SupportRTPCType="Exclusive" DisplayName="DryWet">
+         <Property Name="DryWet" Type="Real32" SupportRTPCType="Exclusive" DisplayName="DryWet" DisplayGroup="Global">
             <UserInterface Step="0.01" Fine="0.001" Decimals="3" UIMax="1.0" />
             <DefaultValue>0.5</DefaultValue>
             <AudioEnginePropertyID>0</AudioEnginePropertyID>
@@ -53,7 +53,7 @@ for the documentation about the plugin xml format
                </ValueRestriction>
             </Restrictions>
          </Property>
-         <Property Name="Feedback" Type="Real32" SupportRTPCType="Exclusive" DisplayName="Feedback">
+         <Property Name="Feedback" Type="Real32" SupportRTPCType="Exclusive" DisplayName="Feedback" DisplayGroup="Global">
             <UserInterface Step="0.01" Fine="0.001" Decimals="3" UIMax="0.98" />
             <DefaultValue>0.5</DefaultValue>
             <AudioEnginePropertyID>1</AudioEnginePropertyID>
@@ -66,7 +66,7 @@ for the documentation about the plugin xml format
                </ValueRestriction>
             </Restrictions>
          </Property>
-         <Property Name="DelayTime" Type="Real32" SupportRTPCType="Exclusive" DisplayName="DelayTime">
+         <Property Name="DelayTime" Type="Real32" SupportRTPCType="Exclusive" DisplayName="DelayTime" DisplayGroup="Delay">
             <UserInterface Step="0.01" Fine="0.001" Decimals="3" UIMax="2.0" />
             <DefaultValue>0.5</DefaultValue>
             <AudioEnginePropertyID>2</AudioEnginePropertyID>
@@ -79,7 +79,7 @@ for the documentation about the plugin xml format
                </ValueRestriction>
             </Restrictions>
          </Property>
-         <Property Name="Depth" Type="Real32" SupportRTPCType="Exclusive" DisplayName="Depth">
+         <Property Name="Depth" Type="Real32" SupportRTPCType="Exclusive" DisplayName="Depth" DisplayGroup="Chorus/Flanger">
             <UserInterface Step="0.01" Fine="0.001" Decimals="3" UIMax="1.0" />
             <DefaultValue>0.5</DefaultValue>
             <AudioEnginePropertyID>3</AudioEnginePropertyID>
@@ -92,7 +92,7 @@ for the documentation about the plugin xml format
                </ValueRestriction>
             </Restrictions>
          </Property>
-         <Property Name="Rate" Type="Real32" SupportRTPCType="Exclusive" DisplayName="Rate">
+         <Property Name="Rate" Type="Real32" SupportRTPCType="Exclusive" DisplayName="Rate" DisplayGroup="Chorus/Flanger">
             <UserInterface Step="0.01" Fine="0.001" Decimals="3" UIMax="20.0" />
             <DefaultValue>10.0</DefaultValue>
             <AudioEnginePropertyID>4</AudioEnginePropertyID>
@@ -105,7 +105,7 @@ for the documentation about the plugin xml format
                </ValueRestriction>
             </Restrictions>
          </Property>
-         <Property Name="PhaseOffset" Type="Real32" SupportRTPCType="Exclusive" DisplayName="PhaseOffset">
+         <Property Name="PhaseOffset" Type="Real32" SupportRTPCType="Exclusive" DisplayName="PhaseOffset" DisplayGroup="Chorus/Flanger">
             <UserInterface Step="0.01" Fine="0.001" Decimals="3" UIMax="1.0" />
             <DefaultValue>0.0</DefaultValue>
             <AudioEnginePropertyID>5</AudioEnginePropertyID>
@@ -118,7 +118,7 @@ for the documentation about the plugin xml format
                </ValueRestriction>
             </Restrictions>
          </Property>
-         <Property Name="Type" Type="Uint32" DisplayName="Type">
+         <Property Name="Type" Type="Uint32" DisplayName="Type" DisplayGroup="Global">
             <DefaultValue>0</DefaultValue>
             <AudioEnginePropertyID>6</AudioEnginePropertyID>
             <Restrictions>

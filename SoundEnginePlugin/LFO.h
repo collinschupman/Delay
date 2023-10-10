@@ -11,8 +11,8 @@
 struct LFO
 {
 private:
-    float mCurrentPhase = 0.f;
+    AkReal32 mCurrentPhase = 0.f;
 
 public:
-    float get(float rate, float phaseOffset, AkUInt32 sampleRate);
+    AkReal32 get(AkReal32 rate, AkReal32 phaseOffset, AkUInt32 sampleRate);
 };

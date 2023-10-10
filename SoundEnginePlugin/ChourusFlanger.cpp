@@ -3,7 +3,7 @@
 #include <cassert>
 #include <string>
 
-AKRESULT ChorusFlanger::Init(AkUInt32 inSampleRate, float delayTime, float maxDelayTime)
+AKRESULT ChorusFlanger::Init(AkUInt32 inSampleRate, AkReal32 delayTime, AkReal32 maxDelayTime)
 {
     mSampleRate = inSampleRate;
 
@@ -33,8 +33,13 @@ void ChorusFlanger::Execute(AkAudioBuffer *io_pBuffer, AkReal32 pDepth, AkReal32
     AkUInt16 numFramesProcessed = 0;
     while (numFramesProcessed < io_pBuffer->uValidFrames)
     {
+        pDepthSmooth = CS::smoothParameter(pDepthSmooth, pDepth, CS::kParamCoeff_Fine);
+        pRateSmooth = CS::smoothParameter(pRateSmooth, pRate, CS::kParamCoeff_Fine);
+        pPhaseOffsetSmooth = CS::smoothParameter(pPhaseOffsetSmooth, pPhaseOffset, CS::kParamCoeff_Fine);
+        pFeedbackSmooth = CS::smoothParameter(pFeedbackSmooth, pFeedback, CS::kParamCoeff_Fine);
+        pDryWetSmooth = CS::smoothParameter(pDryWetSmooth, pDryWet, CS::kParamCoeff_Fine);
 
-        mOffsets[1] = pPhaseOffset; // offset the right channel;
+        mOffsets[1] = pPhaseOffsetSmooth; // offset the right channel;
 
         for (AkUInt32 i = 0; i < io_pBuffer->NumChannels(); i++)
         {
@@ -47,17 +52,17 @@ void ChorusFlanger::Execute(AkAudioBuffer *io_pBuffer, AkReal32 pDepth, AkReal32
             float delayTimeSamples = 0.f;
             if (pType == 0) // chorus
             {
-                delayTimeSamples = CS::jmap(mLFOs[i].get(pRate, mOffsets[i], mSampleRate) * pDepth, kLFOMin, kLFOMax, kFiveMilliseconds, kThirtyMilliseconds) * mSampleRate;
+                delayTimeSamples = CS::jmap(mLFOs[i].get(pRateSmooth, mOffsets[i], mSampleRate) * pDepthSmooth, kLFOMin, kLFOMax, kFiveMilliseconds, kThirtyMilliseconds) * mSampleRate;
             }
             else // flanger //TD: self document
             {
 
-                delayTimeSamples = CS::jmap(mLFOs[i].get(pRate, mOffsets[i], mSampleRate) * pDepth, kLFOMin, kLFOMax, kOneMillisecond, kFiveMilliseconds) * mSampleRate;
+                delayTimeSamples = CS::jmap(mLFOs[i].get(pRateSmooth, mOffsets[i], mSampleRate) * pDepthSmooth, kLFOMin, kLFOMax, kOneMillisecond, kFiveMilliseconds) * mSampleRate;
             }
 
             mDelaylines[i].updateReadHead(delayTimeSamples);
 
-            mDelaylines[i].process(pBuf, numFramesProcessed, pFeedback, pDryWet);
+            mDelaylines[i].process(pBuf, numFramesProcessed, pFeedbackSmooth, pDryWetSmooth);
 
             mDelaylines[i].updateWriteHead();
         }

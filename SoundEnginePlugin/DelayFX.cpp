@@ -62,7 +62,6 @@ AKRESULT DelayFX::Init(AK::IAkPluginMemAlloc *in_pAllocator,
   m_pContext = in_pContext;
   mSampleRate = in_rFormat.uSampleRate;
 
-  // mDelayModule.Init(mSampleRate, m_pParams->RTPC.fDelayTime, MAX_DELAY_TIME);
   mChorusFlangerModule.Init(mSampleRate, m_pParams->RTPC.fDelayTime, MAX_DELAY_TIME);
 
   return AK_Success;
@@ -87,29 +86,6 @@ AKRESULT DelayFX::GetPluginInfo(AkPluginInfo &out_rPluginInfo)
 
 void DelayFX::Execute(AkAudioBuffer *io_pBuffer)
 {
-  // AKPLATFORM::OutputDebugMsg(std::to_string(m_pParams->RTPC.fDepth).c_str());
-  // AKPLATFORM::OutputDebugMsg("\n");
-  // AKPLATFORM::OutputDebugMsg(std::to_string(m_pParams->RTPC.fRate).c_str());
-  // AKPLATFORM::OutputDebugMsg("\n");
-
-  // AKPLATFORM::OutputDebugMsg(std::to_string(m_pParams->RTPC.fPhaseOffset).c_str());
-  // AKPLATFORM::OutputDebugMsg("\n");
-
-  // AKPLATFORM::OutputDebugMsg(std::to_string(m_pParams->RTPC.fPhaseOffset).c_str());
-  // AKPLATFORM::OutputDebugMsg("\n");
-
-  // AKPLATFORM::OutputDebugMsg(std::to_string(m_pParams->RTPC.fFeedback).c_str());
-  // AKPLATFORM::OutputDebugMsg("\n");
-
-  // AKPLATFORM::OutputDebugMsg(std::to_string(m_pParams->RTPC.fDryWet).c_str());
-  // AKPLATFORM::OutputDebugMsg("\n");
-
-  // AKPLATFORM::OutputDebugMsg(std::to_string(m_pParams->NonRTPC.uDelayMode).c_str());
-  // AKPLATFORM::OutputDebugMsg("\n");
-
-  // AKPLATFORM::OutputDebugMsg("\n");
-  
-  // mDelayModule.Execute(io_pBuffer, m_pParams->RTPC.fDelayTime, m_pParams->RTPC.fFeedback, m_pParams->RTPC.fDryWet);
   mChorusFlangerModule.Execute(io_pBuffer, m_pParams->RTPC.fDepth, m_pParams->RTPC.fRate, m_pParams->RTPC.fPhaseOffset, m_pParams->RTPC.fFeedback, m_pParams->RTPC.fDryWet, m_pParams->NonRTPC.uDelayMode);
 }
 
