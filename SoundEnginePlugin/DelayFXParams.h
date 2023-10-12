@@ -30,29 +30,41 @@ the specific language governing permissions and limitations under the License.
 #include <AK/Plugin/PluginServices/AkFXParameterChangeHandler.h>
 #include <AK/SoundEngine/Common/IAkPlugin.h>
 
-static const AkPluginParamID PARAM_DRYWET_ID = 0;
-static const AkPluginParamID PARAM_FEEDBACK_ID = 1;
-static const AkPluginParamID PARAM_DELAY_TIME_ID = 2;
-static const AkPluginParamID PARAM_DEPTH_ID = 3;
-static const AkPluginParamID PARAM_RATE_ID = 4;
-static const AkPluginParamID PARAM_PHASE_OFFSET_ID = 5;
-static const AkPluginParamID PARAM_DELAY_MODE_ID = 6;
+static const AkPluginParamID PARAM_DRYWET_LEFT_ID = 0;
+static const AkPluginParamID PARAM_DRYWET_RIGHT_ID = 1;
 
-static const AkUInt32 NUM_PARAMS = 7;
+static const AkPluginParamID PARAM_FEEDBACK_LEFT_ID = 2;
+static const AkPluginParamID PARAM_FEEDBACK_RIGHT_ID = 3;
+
+static const AkPluginParamID PARAM_DELAY_TIME_LEFT_ID = 4;
+static const AkPluginParamID PARAM_DELAY_TIME_RIGHT_ID = 5;
+
+// static const AkPluginParamID PARAM_DEPTH_ID = 3;
+// static const AkPluginParamID PARAM_RATE_ID = 4;
+// static const AkPluginParamID PARAM_PHASE_OFFSET_ID = 5;
+// static const AkPluginParamID PARAM_DELAY_MODE_ID = 6;
+
+static const AkUInt32 NUM_PARAMS = 6;
 
 struct DelayRTPCParams
 {
-  AkReal32 fDryWet;
-  AkReal32 fFeedback;
-  AkReal32 fDelayTime;
-  AkReal32 fDepth;
-  AkReal32 fRate;
-  AkReal32 fPhaseOffset;
+  AkReal32 fDryWetLeft;
+  AkReal32 fDryWetRight;
+
+  AkReal32 fFeedbackLeft;
+  AkReal32 fFeedbackRight;
+
+  AkReal32 fDelayTimeLeft;
+  AkReal32 fDelayTimeRight;
+
+  // AkReal32 fDepth;
+  // AkReal32 fRate;
+  // AkReal32 fPhaseOffset;
 };
 
 struct DelayNonRTPCParams
 {
-  AkUInt32 uDelayMode;
+  // AkUInt32 uDelayMode;
 };
 
 struct DelayFXParams : public AK::IAkPluginParam
