@@ -88,10 +88,10 @@ AKRESULT DelayFX::GetPluginInfo(AkPluginInfo &out_rPluginInfo)
 void DelayFX::Execute(AkAudioBuffer *io_pBuffer)
 {
   // mChorusFlangerModule.Execute(io_pBuffer, m_pParams->RTPC.fDepth, m_pParams->RTPC.fRate, m_pParams->RTPC.fPhaseOffset, m_pParams->RTPC.fFeedback, m_pParams->RTPC.fDryWet, m_pParams->NonRTPC.uDelayMode);
-std::array<Delay::InDelayParams, 2> params;
-params[0] = {m_pParams->RTPC.fDelayTimeLeft, m_pParams->RTPC.fFeedbackLeft, m_pParams->RTPC.fDryWetLeft};
-params[1] = {m_pParams->RTPC.fDelayTimeRight, m_pParams->RTPC.fFeedbackRight, m_pParams->RTPC.fDryWetRight};
-  mDelayModule.Execute(io_pBuffer, params);
+  std::array<Delay::InDelayParams, 2> params;
+  params[0] = {m_pParams->RTPC.fDelayTimeLeft, m_pParams->RTPC.fFeedbackLeft, m_pParams->RTPC.fDryWetLeft};
+  params[1] = {m_pParams->RTPC.fDelayTimeRight, m_pParams->RTPC.fFeedbackRight, m_pParams->RTPC.fDryWetRight};
+  mDelayModule.Execute(io_pBuffer, params, m_pParams->NonRTPC.uDelayMode);
 }
 
 AKRESULT DelayFX::TimeSkip(AkUInt32 in_uFrames) { return AK_DataReady; }

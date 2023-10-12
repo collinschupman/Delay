@@ -23,7 +23,7 @@ AKRESULT Delay::Init(AkUInt32 inSampleRate, AkReal32 delayTime, AkReal32 maxDela
     return AK_Success;
 }
 
-void Delay::Execute(AkAudioBuffer *io_pBuffer, std::array<InDelayParams,2>& inParams)
+void Delay::Execute(AkAudioBuffer *io_pBuffer, std::array<InDelayParams, 2> &inParams, AkUInt32 uDelayMode)
 {
     assert(io_pBuffer->NumChannels() == mDelaylines.size());
 
@@ -31,27 +31,51 @@ void Delay::Execute(AkAudioBuffer *io_pBuffer, std::array<InDelayParams,2>& inPa
     while (numFramesProcessed < io_pBuffer->uValidFrames)
     {
 
-        for (AkUInt32 i = 0; i < io_pBuffer->NumChannels(); i++)
+        mParams[0].mDelayTimeSmoothed = CS::smoothParameter(mParams[0].mDelayTimeSmoothed, inParams[0].pDelayTime, CS::kParamCoeff_Fine);
+        mParams[1].mDelayTimeSmoothed = CS::smoothParameter(mParams[1].mDelayTimeSmoothed, inParams[1].pDelayTime, CS::kParamCoeff_Fine);
+
+        mParams[0].mDelayTimeSamples = mSampleRate * mParams[0].mDelayTimeSmoothed;
+        mParams[1].mDelayTimeSamples = mSampleRate * mParams[1].mDelayTimeSmoothed;
+
+        AkReal32 *AK_RESTRICT pBufLeft =
+            (AkReal32 * AK_RESTRICT) io_pBuffer->GetChannel(0);
+
+        AkReal32 *AK_RESTRICT pBufRight =
+            (AkReal32 * AK_RESTRICT) io_pBuffer->GetChannel(1);
+
+        const auto leftOut = pBufLeft[numFramesProcessed] + mParams[0].mFeedback;
+        const auto rightOut = pBufRight[numFramesProcessed] + mParams[1].mFeedback;
+
+        if (uDelayMode == 0) // normal
         {
-            mParams[i].mDelayTimeSmoothed = CS::smoothParameter(mParams[i].mDelayTimeSmoothed, inParams[i].pDelayTime, CS::kParamCoeff_Fine);
-            mParams[i].mDelayTimeSamples = mSampleRate * mParams[i].mDelayTimeSmoothed;
-
-            AkReal32 *AK_RESTRICT pBuf =
-                (AkReal32 * AK_RESTRICT) io_pBuffer->GetChannel(i);
-
-            mDelaylines[i].write(pBuf[numFramesProcessed] + mParams[i].mFeedback); // store the incoming sample for delay d(n)
-
-            mDelaylines[i].updateReadHead(mParams[i].mDelayTimeSamples); // update the read head
-
-            const auto delayedSample = mDelaylines[i].read(); // get the delayed sample
-            mParams[i].mFeedback = delayedSample * inParams[i].pFeedback;        // update the feedback
-
-            pBuf[numFramesProcessed] =
-                delayedSample * inParams[i].pDryWet +
-                pBuf[numFramesProcessed] * (1.f - inParams[i].pDryWet); // output
-
-            mDelaylines[i].updateWriteHead(); // update the write head
+            mDelaylines[0].write(leftOut);
+            mDelaylines[1].write(rightOut);
         }
+        else // ping pong
+        {
+            mDelaylines[0].write(rightOut);
+            mDelaylines[1].write(leftOut);
+        }
+
+        mDelaylines[0].updateReadHead(mParams[0].mDelayTimeSamples);
+        mDelaylines[1].updateReadHead(mParams[1].mDelayTimeSamples);
+
+        const auto delayedSampleLeft = mDelaylines[0].read();
+        const auto delayedSampleRight = mDelaylines[1].read();
+
+        mParams[0].mFeedback = delayedSampleLeft * inParams[0].pFeedback;
+        mParams[1].mFeedback = delayedSampleRight * inParams[1].pFeedback;
+
+        pBufLeft[numFramesProcessed] =
+            delayedSampleLeft * inParams[0].pDryWet +
+            pBufLeft[numFramesProcessed] * (1.f - inParams[0].pDryWet);
+
+        pBufRight[numFramesProcessed] =
+            delayedSampleRight * inParams[1].pDryWet +
+            pBufRight[numFramesProcessed] * (1.f - inParams[1].pDryWet);
+
+        mDelaylines[0].updateWriteHead();
+        mDelaylines[1].updateWriteHead();
 
         ++numFramesProcessed;
     }

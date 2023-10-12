@@ -42,9 +42,9 @@ static const AkPluginParamID PARAM_DELAY_TIME_RIGHT_ID = 5;
 // static const AkPluginParamID PARAM_DEPTH_ID = 3;
 // static const AkPluginParamID PARAM_RATE_ID = 4;
 // static const AkPluginParamID PARAM_PHASE_OFFSET_ID = 5;
-// static const AkPluginParamID PARAM_DELAY_MODE_ID = 6;
+static const AkPluginParamID PARAM_DELAY_MODE_ID = 6;
 
-static const AkUInt32 NUM_PARAMS = 6;
+static const AkUInt32 NUM_PARAMS = 7;
 
 struct DelayRTPCParams
 {
@@ -64,7 +64,7 @@ struct DelayRTPCParams
 
 struct DelayNonRTPCParams
 {
-  // AkUInt32 uDelayMode;
+  AkUInt32 uDelayMode;
 };
 
 struct DelayFXParams : public AK::IAkPluginParam

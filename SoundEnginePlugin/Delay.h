@@ -37,5 +37,5 @@ public:
         AkReal32 pDryWet;
     };
 
-    void Execute(AkAudioBuffer *io_pBuffer, std::array<InDelayParams,2>& inParams);
+    void Execute(AkAudioBuffer *io_pBuffer, std::array<InDelayParams,2>& inParams, AkUInt32 uDelayMode);
 };
