@@ -1,29 +1,32 @@
 #pragma once
 
-#include <AK/SoundEngine/Common/AKTypes.h>
-#include <AK/SoundEngine/Common/AKCommonDefs.h>
-
-#include <memory>
+#include <cstddef>
+#include <array>
+#include <stdexcept>
 
 struct CircularBuffer
 {
 public:
-    CircularBuffer(AkReal32 inSampleRate, AkReal32 maxDelayTime);
+    // Maximum buffer size: 4 seconds at 48kHz (192,000 samples)
+    static constexpr std::size_t MAX_BUFFER_SIZE = 192000;
+
+    CircularBuffer(float inSampleRate, float maxDelayTime);
     void Init();
-    void write(AkReal32 inValue);
+    void write(float inValue);
 
     void updateWriteHead();
 
-    void updateReadHead(AkReal32 delayTime);
+    void updateReadHead(float delayTime);
 
-    AkReal32 getReadHead() const;
-    AkReal32 getNextReadHead() const;
+    float getReadHead() const;
+    float getNextReadHead() const;
 
-    AkReal32 getValue(unsigned position) const;
+    float getValue(unsigned position) const;
 
 private:
     std::size_t length = 0;
-    AkReal32 readHead = 0.f;
+    float lengthFloat = 0.f;  // Cached for faster calculations
+    float readHead = 0.f;
     unsigned writeHead = 0;
-    std::unique_ptr<AkReal32[]> buffer = nullptr;
+    alignas(16) float buffer[MAX_BUFFER_SIZE] = {0};  // Static allocation, aligned for SIMD
 };

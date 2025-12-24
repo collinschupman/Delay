@@ -14,10 +14,6 @@ private:
     std::array<Delayline, 2> mDelaylines;
     AkUInt32 mSampleRate = 0;
 
-    // AkReal32 mDelayTimeSmoothed = 0.f;
-    // AkReal32 mDelayTimeSamples = 0.f;
-    // AkReal32 mFeedback = 0.f;
-
     struct LocalDelayParams
     {
         AkReal32 mDelayTimeSmoothed = 0.f;
@@ -37,5 +33,5 @@ public:
         AkReal32 pDryWet;
     };
 
-    void Execute(AkAudioBuffer *io_pBuffer, std::array<InDelayParams,2>& inParams, AkUInt32 uDelayMode);
+    void Execute(AkAudioBuffer *io_pBuffer, std::array<InDelayParams, 2> &inParams, AkUInt32 uDelayMode);
 };

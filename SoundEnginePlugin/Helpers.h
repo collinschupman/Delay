@@ -6,21 +6,26 @@ namespace CS
     static constexpr float kParamCoeff_Fine = 0.0002;
 
     template <typename Type>
-    inline Type lerp(Type sample_x, Type sample_x1, Type phase)
+    [[nodiscard]] constexpr Type lerp(Type sample_x, Type sample_x1, Type phase) noexcept
     {
         return (1 - phase) * sample_x + phase * sample_x1;
     }
 
     template <typename Type>
-    inline Type smoothParameter(Type inParameterSmoothed, Type inNewParameter, AkReal32 smoothingCoeff)
+    [[nodiscard]] constexpr Type smoothParameter(Type inParameterSmoothed, Type inNewParameter, float smoothingCoeff) noexcept
     {
         return inParameterSmoothed -
                smoothingCoeff * (inParameterSmoothed - inNewParameter);
     }
 
     template <typename Type>
-    inline Type jmap(Type sourceValue, Type sourceRangeMin, Type sourceRangeMax, Type targetRangeMin, Type targetRangeMax)
+    [[nodiscard]] constexpr Type jmap(Type sourceValue, Type sourceRangeMin, Type sourceRangeMax, Type targetRangeMin, Type targetRangeMax) noexcept
     {
-        return targetRangeMin + ((targetRangeMax - targetRangeMin) * (sourceValue - sourceRangeMin)) / (sourceRangeMax - sourceRangeMin);
+        const Type sourceRange = sourceRangeMax - sourceRangeMin;
+        // Avoid division by zero - return target min if source range is zero
+        if (sourceRange == Type(0))
+            return targetRangeMin;
+        
+        return targetRangeMin + ((targetRangeMax - targetRangeMin) * (sourceValue - sourceRangeMin)) / sourceRange;
     }
 }

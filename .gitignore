@@ -42,3 +42,10 @@
 *.vcxproj.filters
 *.vcproj
 *.dbmdl
+
+# Test build artifacts
+Tests/build/
+Tests/CMakeFiles/
+Tests/cmake_install.cmake
+Tests/CMakeCache.txt
+Tests/Testing/

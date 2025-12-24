@@ -1,7 +1,6 @@
 #include "ChorusFlanger.h"
 
 #include <cassert>
-#include <string>
 
 AKRESULT ChorusFlanger::Init(AkUInt32 inSampleRate, AkReal32 delayTime, AkReal32 maxDelayTime)
 {
@@ -9,7 +8,7 @@ AKRESULT ChorusFlanger::Init(AkUInt32 inSampleRate, AkReal32 delayTime, AkReal32
 
     for (int i = 0; i < mOffsets.size(); i++)
     {
-        mOffsets[i] = 0.f; // TD: memzero
+        mOffsets[i] = 0.f;
     }
 
     for (Delayline &delayLine : mDelaylines)
@@ -39,7 +38,7 @@ void ChorusFlanger::Execute(AkAudioBuffer *io_pBuffer, AkReal32 pDepth, AkReal32
         pFeedbackSmooth = CS::smoothParameter(pFeedbackSmooth, pFeedback, CS::kParamCoeff_Fine);
         pDryWetSmooth = CS::smoothParameter(pDryWetSmooth, pDryWet, CS::kParamCoeff_Fine);
 
-        mOffsets[1] = pPhaseOffsetSmooth; // offset the right channel;
+        mOffsets[1] = pPhaseOffsetSmooth; // Offset the right channel
 
         for (AkUInt32 i = 0; i < io_pBuffer->NumChannels(); i++)
         {
@@ -50,24 +49,23 @@ void ChorusFlanger::Execute(AkAudioBuffer *io_pBuffer, AkReal32 pDepth, AkReal32
             mDelaylines[i].write(pBuf[numFramesProcessed] + mFeedback);
 
             float delayTimeSamples = 0.f;
-            if (pType == 0) // chorus
+            if (pType == 0) // Chorus: 5ms-30ms modulation range
             {
                 delayTimeSamples = CS::jmap(mLFOs[i].get(pRateSmooth, mOffsets[i], mSampleRate) * pDepthSmooth, kLFOMin, kLFOMax, kFiveMilliseconds, kThirtyMilliseconds) * mSampleRate;
             }
-            else // flanger //TD: self document
+            else // Flanger: 1ms-5ms modulation range
             {
-
                 delayTimeSamples = CS::jmap(mLFOs[i].get(pRateSmooth, mOffsets[i], mSampleRate) * pDepthSmooth, kLFOMin, kLFOMax, kOneMillisecond, kFiveMilliseconds) * mSampleRate;
             }
 
             mDelaylines[i].updateReadHead(delayTimeSamples);
 
-            const auto delayedSample = mDelaylines[i].read(); // get the delayed sample
-            mFeedback = delayedSample * pFeedback; // update the feedback
+            const auto delayedSample = mDelaylines[i].read();
+            mFeedback = delayedSample * pFeedback;
 
             pBuf[numFramesProcessed] =
                 delayedSample * pDryWet +
-                pBuf[numFramesProcessed] * (1.f - pDryWet); //output
+                pBuf[numFramesProcessed] * (1.f - pDryWet);
 
 
             mDelaylines[i].updateWriteHead();

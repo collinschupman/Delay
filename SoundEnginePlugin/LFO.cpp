@@ -1,17 +1,23 @@
 #include "LFO.h"
 
-AkReal32 LFO::get(AkReal32 rate, AkReal32 phaseOffset, AkUInt32 sampleRate)
+float LFO::get(float rate, float phaseOffset, uint32_t sampleRate)
 {
-    AkReal32 offsetPhase = mCurrentPhase + phaseOffset;
+    // Apply phase offset and wrap to [0, 1)
+    float offsetPhase = mCurrentPhase + phaseOffset;
     if (offsetPhase >= 1.f)
     {
         offsetPhase -= 1.f;
     }
-    const AkReal32 out = static_cast<AkReal32>(sin(2.f * M_PI * offsetPhase));
-    mCurrentPhase += rate / sampleRate;
+    
+    // Generate sine wave
+    const float out = std::sin(2.f * M_PI * offsetPhase);
+    
+    // Advance phase and wrap
+    mCurrentPhase += rate / static_cast<float>(sampleRate);
     if (mCurrentPhase >= 1.f)
     {
         mCurrentPhase -= 1.f;
     }
+    
     return out;
 }

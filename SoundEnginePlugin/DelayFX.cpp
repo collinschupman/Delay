@@ -27,8 +27,6 @@ the specific language governing permissions and limitations under the License.
 #include "DelayFX.h"
 #include "../DelayConfig.h"
 
-#include <string>
-
 #include <AK/AkWwiseSDKVersion.h>
 
 AK::IAkPlugin *CreateDelayFX(AK::IAkPluginMemAlloc *in_pAllocator)
@@ -49,7 +47,6 @@ DelayFX::DelayFX()
 
 DelayFX::~DelayFX()
 {
-  // delay is deleted
 }
 
 AKRESULT DelayFX::Init(AK::IAkPluginMemAlloc *in_pAllocator,
@@ -62,7 +59,6 @@ AKRESULT DelayFX::Init(AK::IAkPluginMemAlloc *in_pAllocator,
   m_pContext = in_pContext;
   mSampleRate = in_rFormat.uSampleRate;
 
-  // mChorusFlangerModule.Init(mSampleRate, m_pParams->RTPC.fDelayTime, MAX_DELAY_TIME);
   mDelayModule.Init(mSampleRate, m_pParams->RTPC.fDelayTimeLeft, MAX_DELAY_TIME);
 
   return AK_Success;
@@ -87,7 +83,6 @@ AKRESULT DelayFX::GetPluginInfo(AkPluginInfo &out_rPluginInfo)
 
 void DelayFX::Execute(AkAudioBuffer *io_pBuffer)
 {
-  // mChorusFlangerModule.Execute(io_pBuffer, m_pParams->RTPC.fDepth, m_pParams->RTPC.fRate, m_pParams->RTPC.fPhaseOffset, m_pParams->RTPC.fFeedback, m_pParams->RTPC.fDryWet, m_pParams->NonRTPC.uDelayMode);
   std::array<Delay::InDelayParams, 2> params;
   params[0] = {m_pParams->RTPC.fDelayTimeLeft, m_pParams->RTPC.fFeedbackLeft, m_pParams->RTPC.fDryWetLeft};
   params[1] = {m_pParams->RTPC.fDelayTimeRight, m_pParams->RTPC.fFeedbackRight, m_pParams->RTPC.fDryWetRight};

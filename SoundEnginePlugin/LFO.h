@@ -1,18 +1,20 @@
 #pragma once
 
-#ifndef M_PI
-#define M_PI (3.14159265358979323846)
-#endif
-#define MAX_DELAY_TIME 2
+#include <cmath>
+#include <cstdint>
 
-#include <math.h>
-#include <AK/SoundEngine/Common/AkNumeralTypes.h>
+#ifndef M_PI
+#define M_PI 3.14159265358979323846
+#endif
 
 struct LFO
 {
-private:
-    AkReal32 mCurrentPhase = 0.f;
-
 public:
-    AkReal32 get(AkReal32 rate, AkReal32 phaseOffset, AkUInt32 sampleRate);
+    constexpr LFO() noexcept = default;
+    
+    float get(float rate, float phaseOffset, uint32_t sampleRate);
+    void reset() noexcept { mCurrentPhase = 0.f; }
+    
+private:
+    float mCurrentPhase = 0.f;
 };

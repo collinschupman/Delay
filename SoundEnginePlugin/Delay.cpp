@@ -30,7 +30,6 @@ void Delay::Execute(AkAudioBuffer *io_pBuffer, std::array<InDelayParams, 2> &inP
     AkUInt16 numFramesProcessed = 0;
     while (numFramesProcessed < io_pBuffer->uValidFrames)
     {
-
         mParams[0].mDelayTimeSmoothed = CS::smoothParameter(mParams[0].mDelayTimeSmoothed, inParams[0].pDelayTime, CS::kParamCoeff_Fine);
         mParams[1].mDelayTimeSmoothed = CS::smoothParameter(mParams[1].mDelayTimeSmoothed, inParams[1].pDelayTime, CS::kParamCoeff_Fine);
 

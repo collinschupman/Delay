@@ -28,7 +28,6 @@ the specific language governing permissions and limitations under the License.
 #define DelayFX_H
 
 #include "DelayFXParams.h"
-#include "ChorusFlanger.h"
 #include "Delay.h"
 
 class DelayFX : public AK::IAkInPlaceEffectPlugin
@@ -58,8 +57,6 @@ private:
   AK::IAkEffectPluginContext *m_pContext;
 
   AkUInt32 mSampleRate;
-
-  ChorusFlanger mChorusFlangerModule;
   Delay mDelayModule;
 };
 
