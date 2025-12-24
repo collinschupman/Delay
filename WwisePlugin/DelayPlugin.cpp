@@ -31,24 +31,22 @@ DelayPlugin::DelayPlugin() {}
 
 DelayPlugin::~DelayPlugin() {}
 
-bool DelayPlugin::GetBankParameters(
-    const GUID &in_guidPlatform,
-    AK::Wwise::Plugin::DataWriter &in_dataWriter) const {
-  // Write bank data here
-  in_dataWriter.WriteReal32(
-      m_propertySet.GetReal32(in_guidPlatform, "Placeholder"));
+bool DelayPlugin::GetBankParameters(const GUID& in_guidPlatform,
+                                    AK::Wwise::Plugin::DataWriter& in_dataWriter) const
+{
+    // Write bank data here
+    in_dataWriter.WriteReal32(m_propertySet.GetReal32(in_guidPlatform, "Placeholder"));
 
-  return true;
+    return true;
 }
 
 DEFINE_AUDIOPLUGIN_CONTAINER(Delay); // Create a PluginContainer structure that
                                      // contains the info for our plugin
-EXPORT_AUDIOPLUGIN_CONTAINER(
-    Delay); // This is a DLL, we want to have a standardized name
-ADD_AUDIOPLUGIN_CLASS_TO_CONTAINER( // Add our CLI class to the PluginContainer
-    Delay,       // Name of the plug-in container for this shared library
-    DelayPlugin, // Authoring plug-in class to add to the plug-in container
-    DelayFX      // Corresponding Sound Engine plug-in class
+EXPORT_AUDIOPLUGIN_CONTAINER(Delay); // This is a DLL, we want to have a standardized name
+ADD_AUDIOPLUGIN_CLASS_TO_CONTAINER(  // Add our CLI class to the PluginContainer
+    Delay,                           // Name of the plug-in container for this shared library
+    DelayPlugin,                     // Authoring plug-in class to add to the plug-in container
+    DelayFX                          // Corresponding Sound Engine plug-in class
 );
 DEFINE_PLUGIN_REGISTER_HOOK
 

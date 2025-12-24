@@ -29,64 +29,68 @@ the specific language governing permissions and limitations under the License.
 
 #include <AK/AkWwiseSDKVersion.h>
 
-AK::IAkPlugin *CreateDelayFX(AK::IAkPluginMemAlloc *in_pAllocator)
+AK::IAkPlugin* CreateDelayFX(AK::IAkPluginMemAlloc* in_pAllocator)
 {
-  return AK_PLUGIN_NEW(in_pAllocator, DelayFX());
+    return AK_PLUGIN_NEW(in_pAllocator, DelayFX());
 }
 
-AK::IAkPluginParam *CreateDelayFXParams(AK::IAkPluginMemAlloc *in_pAllocator)
+AK::IAkPluginParam* CreateDelayFXParams(AK::IAkPluginMemAlloc* in_pAllocator)
 {
-  return AK_PLUGIN_NEW(in_pAllocator, DelayFXParams());
+    return AK_PLUGIN_NEW(in_pAllocator, DelayFXParams());
 }
 
 AK_IMPLEMENT_PLUGIN_FACTORY(DelayFX, AkPluginTypeEffect, DelayConfig::CompanyID,
                             DelayConfig::PluginID)
 
-DelayFX::DelayFX()
-    : m_pParams(nullptr), m_pAllocator(nullptr), m_pContext(nullptr) {}
+DelayFX::DelayFX() : m_pParams(nullptr), m_pAllocator(nullptr), m_pContext(nullptr) {}
 
-DelayFX::~DelayFX()
+DelayFX::~DelayFX() {}
+
+AKRESULT DelayFX::Init(AK::IAkPluginMemAlloc* in_pAllocator,
+                       AK::IAkEffectPluginContext* in_pContext, AK::IAkPluginParam* in_pParams,
+                       AkAudioFormat& in_rFormat)
 {
+    m_pParams = (DelayFXParams*) in_pParams;
+    m_pAllocator = in_pAllocator;
+    m_pContext = in_pContext;
+    mSampleRate = in_rFormat.uSampleRate;
+
+    mDelayModule.Init(mSampleRate, m_pParams->RTPC.fDelayTimeLeft, MAX_DELAY_TIME);
+
+    return AK_Success;
 }
 
-AKRESULT DelayFX::Init(AK::IAkPluginMemAlloc *in_pAllocator,
-                       AK::IAkEffectPluginContext *in_pContext,
-                       AK::IAkPluginParam *in_pParams,
-                       AkAudioFormat &in_rFormat)
+AKRESULT DelayFX::Term(AK::IAkPluginMemAlloc* in_pAllocator)
 {
-  m_pParams = (DelayFXParams *)in_pParams;
-  m_pAllocator = in_pAllocator;
-  m_pContext = in_pContext;
-  mSampleRate = in_rFormat.uSampleRate;
-
-  mDelayModule.Init(mSampleRate, m_pParams->RTPC.fDelayTimeLeft, MAX_DELAY_TIME);
-
-  return AK_Success;
+    AK_PLUGIN_DELETE(in_pAllocator, this);
+    return AK_Success;
 }
 
-AKRESULT DelayFX::Term(AK::IAkPluginMemAlloc *in_pAllocator)
+AKRESULT DelayFX::Reset()
 {
-  AK_PLUGIN_DELETE(in_pAllocator, this);
-  return AK_Success;
+    return AK_Success;
 }
 
-AKRESULT DelayFX::Reset() { return AK_Success; }
-
-AKRESULT DelayFX::GetPluginInfo(AkPluginInfo &out_rPluginInfo)
+AKRESULT DelayFX::GetPluginInfo(AkPluginInfo& out_rPluginInfo)
 {
-  out_rPluginInfo.eType = AkPluginTypeEffect;
-  out_rPluginInfo.bIsInPlace = true;
-  out_rPluginInfo.bCanProcessObjects = false;
-  out_rPluginInfo.uBuildVersion = AK_WWISESDK_VERSION_COMBINED;
-  return AK_Success;
+    out_rPluginInfo.eType = AkPluginTypeEffect;
+    out_rPluginInfo.bIsInPlace = true;
+    out_rPluginInfo.bCanProcessObjects = false;
+    out_rPluginInfo.uBuildVersion = AK_WWISESDK_VERSION_COMBINED;
+    return AK_Success;
 }
 
-void DelayFX::Execute(AkAudioBuffer *io_pBuffer)
+void DelayFX::Execute(AkAudioBuffer* io_pBuffer)
 {
-  std::array<Delay::InDelayParams, 2> params;
-  params[0] = {m_pParams->RTPC.fDelayTimeLeft, m_pParams->RTPC.fFeedbackLeft, m_pParams->RTPC.fDryWetLeft};
-  params[1] = {m_pParams->RTPC.fDelayTimeRight, m_pParams->RTPC.fFeedbackRight, m_pParams->RTPC.fDryWetRight};
-  mDelayModule.Execute(io_pBuffer, params, m_pParams->NonRTPC.uDelayMode);
+    std::array<Delay::InDelayParams, 2> params;
+    params[0] = {m_pParams->RTPC.fDelayTimeLeft, m_pParams->RTPC.fFeedbackLeft,
+                 m_pParams->RTPC.fDryWetLeft};
+    params[1] = {m_pParams->RTPC.fDelayTimeRight, m_pParams->RTPC.fFeedbackRight,
+                 m_pParams->RTPC.fDryWetRight};
+    mDelayModule.Execute(io_pBuffer, params, m_pParams->NonRTPC.uDelayMode);
 }
 
-AKRESULT DelayFX::TimeSkip(AkUInt32 in_uFrames) { return AK_DataReady; }
+AKRESULT DelayFX::TimeSkip(AkUInt32 in_uFrames)
+{
+    return AK_DataReady;
+}

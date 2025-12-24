@@ -1,7 +1,7 @@
 #include "CircularBuffer.h"
 #include <cstring>
-#include <string>
 #include <stdexcept>
+#include <string>
 
 CircularBuffer::CircularBuffer(float inSampleRate, float maxDelayTime)
     : length(static_cast<std::size_t>(inSampleRate * maxDelayTime)),
@@ -9,11 +9,9 @@ CircularBuffer::CircularBuffer(float inSampleRate, float maxDelayTime)
 {
     if (length > MAX_BUFFER_SIZE)
     {
-        throw std::runtime_error(
-            "CircularBuffer: Requested size (" + std::to_string(length) + 
-            " samples) exceeds maximum (" + std::to_string(MAX_BUFFER_SIZE) + 
-            " samples). Reduce sample rate or max delay time."
-        );
+        throw std::runtime_error("CircularBuffer: Requested size (" + std::to_string(length) +
+                                 " samples) exceeds maximum (" + std::to_string(MAX_BUFFER_SIZE) +
+                                 " samples). Reduce sample rate or max delay time.");
     }
 }
 

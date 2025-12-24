@@ -32,134 +32,131 @@ DelayFXParams::DelayFXParams() {}
 
 DelayFXParams::~DelayFXParams() {}
 
-DelayFXParams::DelayFXParams(const DelayFXParams &in_rParams)
+DelayFXParams::DelayFXParams(const DelayFXParams& in_rParams)
 {
-  RTPC = in_rParams.RTPC;
-  NonRTPC = in_rParams.NonRTPC;
-  m_paramChangeHandler.SetAllParamChanges();
+    RTPC = in_rParams.RTPC;
+    NonRTPC = in_rParams.NonRTPC;
+    m_paramChangeHandler.SetAllParamChanges();
 }
 
-AK::IAkPluginParam *DelayFXParams::Clone(AK::IAkPluginMemAlloc *in_pAllocator)
+AK::IAkPluginParam* DelayFXParams::Clone(AK::IAkPluginMemAlloc* in_pAllocator)
 {
-  return AK_PLUGIN_NEW(in_pAllocator, DelayFXParams(*this));
+    return AK_PLUGIN_NEW(in_pAllocator, DelayFXParams(*this));
 }
 
-AKRESULT DelayFXParams::Init(AK::IAkPluginMemAlloc *in_pAllocator,
-                             const void *in_pParamsBlock,
+AKRESULT DelayFXParams::Init(AK::IAkPluginMemAlloc* in_pAllocator, const void* in_pParamsBlock,
                              AkUInt32 in_ulBlockSize)
 {
-  if (in_ulBlockSize == 0)
-  {
-    RTPC.fDryWetLeft = 0.5f;
-    RTPC.fDryWetRight = 0.5f;
+    if (in_ulBlockSize == 0)
+    {
+        RTPC.fDryWetLeft = 0.5f;
+        RTPC.fDryWetRight = 0.5f;
 
-    RTPC.fFeedbackLeft = 0.5f;
-    RTPC.fFeedbackRight = 0.5f;
+        RTPC.fFeedbackLeft = 0.5f;
+        RTPC.fFeedbackRight = 0.5f;
 
-    RTPC.fDelayTimeLeft = 2.f;
-    RTPC.fDelayTimeRight = 2.f;
+        RTPC.fDelayTimeLeft = 2.f;
+        RTPC.fDelayTimeRight = 2.f;
 
-    // RTPC.fDepth = 0.5f;
-    // RTPC.fRate = 10.0f;
-    // RTPC.fPhaseOffset = 0.f;
+        // RTPC.fDepth = 0.5f;
+        // RTPC.fRate = 10.0f;
+        // RTPC.fPhaseOffset = 0.f;
 
-    NonRTPC.uDelayMode = 0;
+        NonRTPC.uDelayMode = 0;
 
-    m_paramChangeHandler.SetAllParamChanges();
+        m_paramChangeHandler.SetAllParamChanges();
+        return AK_Success;
+    }
+
+    return SetParamsBlock(in_pParamsBlock, in_ulBlockSize);
+}
+
+AKRESULT DelayFXParams::Term(AK::IAkPluginMemAlloc* in_pAllocator)
+{
+    AK_PLUGIN_DELETE(in_pAllocator, this);
     return AK_Success;
-  }
-
-  return SetParamsBlock(in_pParamsBlock, in_ulBlockSize);
 }
 
-AKRESULT DelayFXParams::Term(AK::IAkPluginMemAlloc *in_pAllocator)
+AKRESULT DelayFXParams::SetParamsBlock(const void* in_pParamsBlock, AkUInt32 in_ulBlockSize)
 {
-  AK_PLUGIN_DELETE(in_pAllocator, this);
-  return AK_Success;
+    AKRESULT eResult = AK_Success;
+    AkUInt8* pParamsBlock = (AkUInt8*) in_pParamsBlock;
+
+    // Read bank data here
+    RTPC.fDryWetLeft = READBANKDATA(AkReal32, pParamsBlock, in_ulBlockSize);
+    RTPC.fDryWetRight = READBANKDATA(AkReal32, pParamsBlock, in_ulBlockSize);
+
+    RTPC.fFeedbackLeft = READBANKDATA(AkReal32, pParamsBlock, in_ulBlockSize);
+    RTPC.fFeedbackRight = READBANKDATA(AkReal32, pParamsBlock, in_ulBlockSize);
+
+    RTPC.fDelayTimeLeft = READBANKDATA(AkReal32, pParamsBlock, in_ulBlockSize);
+    RTPC.fDelayTimeRight = READBANKDATA(AkReal32, pParamsBlock, in_ulBlockSize);
+
+    // RTPC.fDepth = READBANKDATA(AkReal32, pParamsBlock, in_ulBlockSize);
+    // RTPC.fRate = READBANKDATA(AkReal32, pParamsBlock, in_ulBlockSize);
+    // RTPC.fPhaseOffset = READBANKDATA(AkReal32, pParamsBlock, in_ulBlockSize);
+
+    NonRTPC.uDelayMode = READBANKDATA(AkUInt32, pParamsBlock, in_ulBlockSize);
+
+    CHECKBANKDATASIZE(in_ulBlockSize, eResult);
+    m_paramChangeHandler.SetAllParamChanges();
+
+    return eResult;
 }
 
-AKRESULT DelayFXParams::SetParamsBlock(const void *in_pParamsBlock,
-                                       AkUInt32 in_ulBlockSize)
-{
-  AKRESULT eResult = AK_Success;
-  AkUInt8 *pParamsBlock = (AkUInt8 *)in_pParamsBlock;
-
-  // Read bank data here
-  RTPC.fDryWetLeft = READBANKDATA(AkReal32, pParamsBlock, in_ulBlockSize);
-  RTPC.fDryWetRight = READBANKDATA(AkReal32, pParamsBlock, in_ulBlockSize);
-
-  RTPC.fFeedbackLeft = READBANKDATA(AkReal32, pParamsBlock, in_ulBlockSize);
-  RTPC.fFeedbackRight = READBANKDATA(AkReal32, pParamsBlock, in_ulBlockSize);
-
-  RTPC.fDelayTimeLeft = READBANKDATA(AkReal32, pParamsBlock, in_ulBlockSize);
-  RTPC.fDelayTimeRight = READBANKDATA(AkReal32, pParamsBlock, in_ulBlockSize);
-
-  // RTPC.fDepth = READBANKDATA(AkReal32, pParamsBlock, in_ulBlockSize);
-  // RTPC.fRate = READBANKDATA(AkReal32, pParamsBlock, in_ulBlockSize);
-  // RTPC.fPhaseOffset = READBANKDATA(AkReal32, pParamsBlock, in_ulBlockSize);
-
-  NonRTPC.uDelayMode = READBANKDATA(AkUInt32, pParamsBlock, in_ulBlockSize);
-
-  CHECKBANKDATASIZE(in_ulBlockSize, eResult);
-  m_paramChangeHandler.SetAllParamChanges();
-
-  return eResult;
-}
-
-AKRESULT DelayFXParams::SetParam(AkPluginParamID in_paramID,
-                                 const void *in_pValue,
+AKRESULT DelayFXParams::SetParam(AkPluginParamID in_paramID, const void* in_pValue,
                                  AkUInt32 in_ulParamSize)
 {
-  AKRESULT eResult = AK_Success;
+    AKRESULT eResult = AK_Success;
 
-  // Handle parameter change here
-  switch (in_paramID)
-  {
-  case PARAM_DRYWET_LEFT_ID:
-    RTPC.fDryWetLeft = *((AkReal32 *)in_pValue);
-    m_paramChangeHandler.SetParamChange(PARAM_DRYWET_LEFT_ID);
-    break;
-  case PARAM_DRYWET_RIGHT_ID:
-    RTPC.fDryWetRight = *((AkReal32 *)in_pValue);
-    m_paramChangeHandler.SetParamChange(PARAM_DRYWET_RIGHT_ID);
-    break;
-  case PARAM_FEEDBACK_LEFT_ID:
-    RTPC.fFeedbackLeft = *((AkReal32 *)in_pValue);
-    m_paramChangeHandler.SetParamChange(PARAM_FEEDBACK_LEFT_ID);
-    break;
-  case PARAM_FEEDBACK_RIGHT_ID:
-    RTPC.fFeedbackRight = *((AkReal32 *)in_pValue);
-    m_paramChangeHandler.SetParamChange(PARAM_FEEDBACK_RIGHT_ID);
-    break;
-  case PARAM_DELAY_TIME_LEFT_ID:
-    RTPC.fDelayTimeLeft = *((AkReal32 *)in_pValue);
-    m_paramChangeHandler.SetParamChange(PARAM_DELAY_TIME_LEFT_ID);
-    break;
-  case PARAM_DELAY_TIME_RIGHT_ID:
-    RTPC.fDelayTimeRight = *((AkReal32 *)in_pValue);
-    m_paramChangeHandler.SetParamChange(PARAM_DELAY_TIME_RIGHT_ID);
-    break;
+    // Handle parameter change here
+    switch (in_paramID)
+    {
+        case PARAM_DRYWET_LEFT_ID:
+            RTPC.fDryWetLeft = *((AkReal32*) in_pValue);
+            m_paramChangeHandler.SetParamChange(PARAM_DRYWET_LEFT_ID);
+            break;
+        case PARAM_DRYWET_RIGHT_ID:
+            RTPC.fDryWetRight = *((AkReal32*) in_pValue);
+            m_paramChangeHandler.SetParamChange(PARAM_DRYWET_RIGHT_ID);
+            break;
+        case PARAM_FEEDBACK_LEFT_ID:
+            RTPC.fFeedbackLeft = *((AkReal32*) in_pValue);
+            m_paramChangeHandler.SetParamChange(PARAM_FEEDBACK_LEFT_ID);
+            break;
+        case PARAM_FEEDBACK_RIGHT_ID:
+            RTPC.fFeedbackRight = *((AkReal32*) in_pValue);
+            m_paramChangeHandler.SetParamChange(PARAM_FEEDBACK_RIGHT_ID);
+            break;
+        case PARAM_DELAY_TIME_LEFT_ID:
+            RTPC.fDelayTimeLeft = *((AkReal32*) in_pValue);
+            m_paramChangeHandler.SetParamChange(PARAM_DELAY_TIME_LEFT_ID);
+            break;
+        case PARAM_DELAY_TIME_RIGHT_ID:
+            RTPC.fDelayTimeRight = *((AkReal32*) in_pValue);
+            m_paramChangeHandler.SetParamChange(PARAM_DELAY_TIME_RIGHT_ID);
+            break;
 
-  // case PARAM_DEPTH_ID:
-  //   RTPC.fDepth = *((AkReal32 *)in_pValue);
-  //   m_paramChangeHandler.SetParamChange(PARAM_DEPTH_ID);
-  //   break;
-  // case PARAM_RATE_ID:
-  //   RTPC.fRate = *((AkReal32 *)in_pValue);
-  //   m_paramChangeHandler.SetParamChange(PARAM_RATE_ID);
-  //   break;
-  // case PARAM_PHASE_OFFSET_ID:
-  //   RTPC.fPhaseOffset = *((AkReal32 *)in_pValue);
-  //   m_paramChangeHandler.SetParamChange(PARAM_PHASE_OFFSET_ID);
-  //   break;
-  case PARAM_DELAY_MODE_ID:
-    NonRTPC.uDelayMode = *((AkUInt32 *)in_pValue);
-    m_paramChangeHandler.SetParamChange(PARAM_DELAY_MODE_ID);
-    break;
-  default:
-    eResult = AK_InvalidParameter;
-    break;
-  }
+        // case PARAM_DEPTH_ID:
+        //   RTPC.fDepth = *((AkReal32 *)in_pValue);
+        //   m_paramChangeHandler.SetParamChange(PARAM_DEPTH_ID);
+        //   break;
+        // case PARAM_RATE_ID:
+        //   RTPC.fRate = *((AkReal32 *)in_pValue);
+        //   m_paramChangeHandler.SetParamChange(PARAM_RATE_ID);
+        //   break;
+        // case PARAM_PHASE_OFFSET_ID:
+        //   RTPC.fPhaseOffset = *((AkReal32 *)in_pValue);
+        //   m_paramChangeHandler.SetParamChange(PARAM_PHASE_OFFSET_ID);
+        //   break;
+        case PARAM_DELAY_MODE_ID:
+            NonRTPC.uDelayMode = *((AkUInt32*) in_pValue);
+            m_paramChangeHandler.SetParamChange(PARAM_DELAY_MODE_ID);
+            break;
+        default:
+            eResult = AK_InvalidParameter;
+            break;
+    }
 
-  return eResult;
+    return eResult;
 }

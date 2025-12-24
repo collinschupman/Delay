@@ -1,6 +1,6 @@
-#include <gtest/gtest.h>
 #include "Helpers.h"
 #include <cmath>
+#include <gtest/gtest.h>
 
 TEST(HelpersTest, LerpBasic)
 {
@@ -46,9 +46,9 @@ TEST(HelpersTest, SmoothParameterDirection)
     // Test smoothing moves in correct direction
     float current = 0.0f;
     float target = 1.0f;
-    
+
     float smoothed = CS::smoothParameter(current, target, CS::kParamCoeff_Fine);
-    
+
     EXPECT_GT(smoothed, current);
     EXPECT_LT(smoothed, target);
 }
@@ -58,9 +58,9 @@ TEST(HelpersTest, SmoothParameterReversed)
     // Test smoothing from high to low
     float current = 1.0f;
     float target = 0.0f;
-    
+
     float smoothed = CS::smoothParameter(current, target, CS::kParamCoeff_Fine);
-    
+
     EXPECT_LT(smoothed, current);
     EXPECT_GT(smoothed, target);
 }
@@ -94,6 +94,6 @@ TEST(HelpersTest, JmapArbitraryRanges)
     // Test with arbitrary ranges (LFO depth to milliseconds)
     float lfoValue = 0.5f; // 50% depth
     float mapped = CS::jmap(lfoValue, 0.0f, 1.0f, 0.001f, 0.005f);
-    
+
     EXPECT_NEAR(mapped, 0.003f, 0.0001f); // Should be 3ms
 }

@@ -1,7 +1,7 @@
 #pragma once
 
-#include <cstddef>
 #include <array>
+#include <cstddef>
 #include <stdexcept>
 
 struct CircularBuffer
@@ -25,8 +25,8 @@ public:
 
 private:
     std::size_t length = 0;
-    float lengthFloat = 0.f;  // Cached for faster calculations
+    float lengthFloat = 0.f; // Cached for faster calculations
     float readHead = 0.f;
     unsigned writeHead = 0;
-    alignas(16) float buffer[MAX_BUFFER_SIZE] = {0};  // Static allocation, aligned for SIMD
+    alignas(16) float buffer[MAX_BUFFER_SIZE] = {0}; // Static allocation, aligned for SIMD
 };

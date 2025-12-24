@@ -9,13 +9,13 @@ AKRESULT Delay::Init(AkUInt32 inSampleRate, AkReal32 delayTime, AkReal32 maxDela
     // mDelayTimeSamples = mSampleRate * delayTime;
     // mDelayTimeSmoothed = delayTime;
 
-    for (LocalDelayParams &param : mParams)
+    for (LocalDelayParams& param : mParams)
     {
         param.mDelayTimeSamples = mSampleRate * delayTime;
         param.mDelayTimeSmoothed = delayTime;
     }
 
-    for (Delayline &delayLine : mDelaylines)
+    for (Delayline& delayLine : mDelaylines)
     {
         delayLine.Init(inSampleRate, maxDelayTime);
     }
@@ -23,24 +23,25 @@ AKRESULT Delay::Init(AkUInt32 inSampleRate, AkReal32 delayTime, AkReal32 maxDela
     return AK_Success;
 }
 
-void Delay::Execute(AkAudioBuffer *io_pBuffer, std::array<InDelayParams, 2> &inParams, AkUInt32 uDelayMode)
+void Delay::Execute(AkAudioBuffer* io_pBuffer, std::array<InDelayParams, 2>& inParams,
+                    AkUInt32 uDelayMode)
 {
     assert(io_pBuffer->NumChannels() == mDelaylines.size());
 
     AkUInt16 numFramesProcessed = 0;
     while (numFramesProcessed < io_pBuffer->uValidFrames)
     {
-        mParams[0].mDelayTimeSmoothed = CS::smoothParameter(mParams[0].mDelayTimeSmoothed, inParams[0].pDelayTime, CS::kParamCoeff_Fine);
-        mParams[1].mDelayTimeSmoothed = CS::smoothParameter(mParams[1].mDelayTimeSmoothed, inParams[1].pDelayTime, CS::kParamCoeff_Fine);
+        mParams[0].mDelayTimeSmoothed = CS::smoothParameter(
+            mParams[0].mDelayTimeSmoothed, inParams[0].pDelayTime, CS::kParamCoeff_Fine);
+        mParams[1].mDelayTimeSmoothed = CS::smoothParameter(
+            mParams[1].mDelayTimeSmoothed, inParams[1].pDelayTime, CS::kParamCoeff_Fine);
 
         mParams[0].mDelayTimeSamples = mSampleRate * mParams[0].mDelayTimeSmoothed;
         mParams[1].mDelayTimeSamples = mSampleRate * mParams[1].mDelayTimeSmoothed;
 
-        AkReal32 *AK_RESTRICT pBufLeft =
-            (AkReal32 * AK_RESTRICT) io_pBuffer->GetChannel(0);
+        AkReal32* AK_RESTRICT pBufLeft = (AkReal32 * AK_RESTRICT) io_pBuffer->GetChannel(0);
 
-        AkReal32 *AK_RESTRICT pBufRight =
-            (AkReal32 * AK_RESTRICT) io_pBuffer->GetChannel(1);
+        AkReal32* AK_RESTRICT pBufRight = (AkReal32 * AK_RESTRICT) io_pBuffer->GetChannel(1);
 
         const auto leftOut = pBufLeft[numFramesProcessed] + mParams[0].mFeedback;
         const auto rightOut = pBufRight[numFramesProcessed] + mParams[1].mFeedback;
@@ -65,13 +66,11 @@ void Delay::Execute(AkAudioBuffer *io_pBuffer, std::array<InDelayParams, 2> &inP
         mParams[0].mFeedback = delayedSampleLeft * inParams[0].pFeedback;
         mParams[1].mFeedback = delayedSampleRight * inParams[1].pFeedback;
 
-        pBufLeft[numFramesProcessed] =
-            delayedSampleLeft * inParams[0].pDryWet +
-            pBufLeft[numFramesProcessed] * (1.f - inParams[0].pDryWet);
+        pBufLeft[numFramesProcessed] = delayedSampleLeft * inParams[0].pDryWet +
+                                       pBufLeft[numFramesProcessed] * (1.f - inParams[0].pDryWet);
 
-        pBufRight[numFramesProcessed] =
-            delayedSampleRight * inParams[1].pDryWet +
-            pBufRight[numFramesProcessed] * (1.f - inParams[1].pDryWet);
+        pBufRight[numFramesProcessed] = delayedSampleRight * inParams[1].pDryWet +
+                                        pBufRight[numFramesProcessed] * (1.f - inParams[1].pDryWet);
 
         mDelaylines[0].updateWriteHead();
         mDelaylines[1].updateWriteHead();

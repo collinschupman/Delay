@@ -48,49 +48,48 @@ static const AkUInt32 NUM_PARAMS = 7;
 
 struct DelayRTPCParams
 {
-  AkReal32 fDryWetLeft;
-  AkReal32 fDryWetRight;
+    AkReal32 fDryWetLeft;
+    AkReal32 fDryWetRight;
 
-  AkReal32 fFeedbackLeft;
-  AkReal32 fFeedbackRight;
+    AkReal32 fFeedbackLeft;
+    AkReal32 fFeedbackRight;
 
-  AkReal32 fDelayTimeLeft;
-  AkReal32 fDelayTimeRight;
+    AkReal32 fDelayTimeLeft;
+    AkReal32 fDelayTimeRight;
 
-  // AkReal32 fDepth;
-  // AkReal32 fRate;
-  // AkReal32 fPhaseOffset;
+    // AkReal32 fDepth;
+    // AkReal32 fRate;
+    // AkReal32 fPhaseOffset;
 };
 
 struct DelayNonRTPCParams
 {
-  AkUInt32 uDelayMode;
+    AkUInt32 uDelayMode;
 };
 
 struct DelayFXParams : public AK::IAkPluginParam
 {
-  DelayFXParams();
-  DelayFXParams(const DelayFXParams &in_rParams);
+    DelayFXParams();
+    DelayFXParams(const DelayFXParams& in_rParams);
 
-  ~DelayFXParams();
+    ~DelayFXParams();
 
-  IAkPluginParam *Clone(AK::IAkPluginMemAlloc *in_pAllocator) override;
+    IAkPluginParam* Clone(AK::IAkPluginMemAlloc* in_pAllocator) override;
 
-  AKRESULT Init(AK::IAkPluginMemAlloc *in_pAllocator,
-                const void *in_pParamsBlock, AkUInt32 in_ulBlockSize) override;
+    AKRESULT Init(AK::IAkPluginMemAlloc* in_pAllocator, const void* in_pParamsBlock,
+                  AkUInt32 in_ulBlockSize) override;
 
-  AKRESULT Term(AK::IAkPluginMemAlloc *in_pAllocator) override;
+    AKRESULT Term(AK::IAkPluginMemAlloc* in_pAllocator) override;
 
-  AKRESULT SetParamsBlock(const void *in_pParamsBlock,
-                          AkUInt32 in_ulBlockSize) override;
+    AKRESULT SetParamsBlock(const void* in_pParamsBlock, AkUInt32 in_ulBlockSize) override;
 
-  AKRESULT SetParam(AkPluginParamID in_paramID, const void *in_pValue,
-                    AkUInt32 in_ulParamSize) override;
+    AKRESULT SetParam(AkPluginParamID in_paramID, const void* in_pValue,
+                      AkUInt32 in_ulParamSize) override;
 
-  AK::AkFXParameterChangeHandler<NUM_PARAMS> m_paramChangeHandler;
+    AK::AkFXParameterChangeHandler<NUM_PARAMS> m_paramChangeHandler;
 
-  DelayRTPCParams RTPC;
-  DelayNonRTPCParams NonRTPC;
+    DelayRTPCParams RTPC;
+    DelayNonRTPCParams NonRTPC;
 };
 
 #endif // DelayFXParams_H

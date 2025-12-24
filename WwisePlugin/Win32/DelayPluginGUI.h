@@ -29,7 +29,8 @@ the specific language governing permissions and limitations under the License.
 #include "../DelayPlugin.h"
 
 class DelayPluginGUI final : public AK::Wwise::Plugin::PluginMFCWindows<>,
-                             public AK::Wwise::Plugin::GUIWindows {
+                             public AK::Wwise::Plugin::GUIWindows
+{
 public:
-  DelayPluginGUI();
+    DelayPluginGUI();
 };

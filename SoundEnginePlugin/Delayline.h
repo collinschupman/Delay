@@ -10,7 +10,7 @@ struct Delayline
 {
 public:
     Delayline(float sampleRate, float maxDelayTime);
-    
+
     void write(float inValue);
     float read() const;
     void updateReadHead(float delayTime);

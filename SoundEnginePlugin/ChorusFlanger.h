@@ -1,11 +1,11 @@
 #pragma once
 
 #include "Delayline.h"
-#include "LFO.h"
 #include "Helpers.h"
+#include "LFO.h"
 
-#include <AK/SoundEngine/Common/AKTypes.h>
 #include <AK/SoundEngine/Common/AKCommonDefs.h>
+#include <AK/SoundEngine/Common/AKTypes.h>
 
 #include <array>
 
@@ -26,5 +26,6 @@ private:
 public:
     AKRESULT Init(AkUInt32 inSampleRate, AkReal32 delayTime, AkReal32 maxDelayTime);
 
-    void Execute(AkAudioBuffer *io_pBuffer, AkReal32 pDepth, AkReal32 pRate, AkReal32 pPhaseOffset, AkReal32 pFeedback, AkReal32 pDryWet, AkUInt32 pType);
+    void Execute(AkAudioBuffer* io_pBuffer, AkReal32 pDepth, AkReal32 pRate, AkReal32 pPhaseOffset,
+                 AkReal32 pFeedback, AkReal32 pDryWet, AkUInt32 pType);
 };

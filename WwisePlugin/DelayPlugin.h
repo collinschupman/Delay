@@ -31,18 +31,18 @@ the specific language governing permissions and limitations under the License.
 /// See
 /// https://www.audiokinetic.com/library/edge/?source=SDK&id=plugin__dll.html
 /// for the documentation about Authoring plug-ins
-class DelayPlugin final : public AK::Wwise::Plugin::AudioPlugin {
+class DelayPlugin final : public AK::Wwise::Plugin::AudioPlugin
+{
 public:
-  DelayPlugin();
-  ~DelayPlugin();
+    DelayPlugin();
+    ~DelayPlugin();
 
-  /// This function is called by Wwise to obtain parameters that will be written
-  /// to a bank. Because these can be changed at run-time, the parameter block
-  /// should stay relatively small.
-  // Larger data should be put in the Data Block.
-  bool GetBankParameters(
-      const GUID &in_guidPlatform,
-      AK::Wwise::Plugin::DataWriter &in_dataWriter) const override;
+    /// This function is called by Wwise to obtain parameters that will be written
+    /// to a bank. Because these can be changed at run-time, the parameter block
+    /// should stay relatively small.
+    // Larger data should be put in the Data Block.
+    bool GetBankParameters(const GUID& in_guidPlatform,
+                           AK::Wwise::Plugin::DataWriter& in_dataWriter) const override;
 };
 
 DECLARE_AUDIOPLUGIN_CONTAINER(Delay); // Exposes our PluginContainer structure

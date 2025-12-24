@@ -11,7 +11,7 @@ AKRESULT ChorusFlanger::Init(AkUInt32 inSampleRate, AkReal32 delayTime, AkReal32
         mOffsets[i] = 0.f;
     }
 
-    for (Delayline &delayLine : mDelaylines)
+    for (Delayline& delayLine : mDelaylines)
     {
         delayLine.Init(inSampleRate, maxDelayTime);
     }
@@ -19,7 +19,9 @@ AKRESULT ChorusFlanger::Init(AkUInt32 inSampleRate, AkReal32 delayTime, AkReal32
     return AK_Success;
 }
 
-void ChorusFlanger::Execute(AkAudioBuffer *io_pBuffer, AkReal32 pDepth, AkReal32 pRate, AkReal32 pPhaseOffset, AkReal32 pFeedback, AkReal32 pDryWet, AkUInt32 pType)
+void ChorusFlanger::Execute(AkAudioBuffer* io_pBuffer, AkReal32 pDepth, AkReal32 pRate,
+                            AkReal32 pPhaseOffset, AkReal32 pFeedback, AkReal32 pDryWet,
+                            AkUInt32 pType)
 {
     assert(io_pBuffer->NumChannels() == mDelaylines.size());
 
@@ -34,7 +36,8 @@ void ChorusFlanger::Execute(AkAudioBuffer *io_pBuffer, AkReal32 pDepth, AkReal32
     {
         pDepthSmooth = CS::smoothParameter(pDepthSmooth, pDepth, CS::kParamCoeff_Fine);
         pRateSmooth = CS::smoothParameter(pRateSmooth, pRate, CS::kParamCoeff_Fine);
-        pPhaseOffsetSmooth = CS::smoothParameter(pPhaseOffsetSmooth, pPhaseOffset, CS::kParamCoeff_Fine);
+        pPhaseOffsetSmooth =
+            CS::smoothParameter(pPhaseOffsetSmooth, pPhaseOffset, CS::kParamCoeff_Fine);
         pFeedbackSmooth = CS::smoothParameter(pFeedbackSmooth, pFeedback, CS::kParamCoeff_Fine);
         pDryWetSmooth = CS::smoothParameter(pDryWetSmooth, pDryWet, CS::kParamCoeff_Fine);
 
@@ -43,19 +46,24 @@ void ChorusFlanger::Execute(AkAudioBuffer *io_pBuffer, AkReal32 pDepth, AkReal32
         for (AkUInt32 i = 0; i < io_pBuffer->NumChannels(); i++)
         {
 
-            AkReal32 *AK_RESTRICT pBuf =
-                (AkReal32 * AK_RESTRICT) io_pBuffer->GetChannel(i);
+            AkReal32* AK_RESTRICT pBuf = (AkReal32 * AK_RESTRICT) io_pBuffer->GetChannel(i);
 
             mDelaylines[i].write(pBuf[numFramesProcessed] + mFeedback);
 
             float delayTimeSamples = 0.f;
             if (pType == 0) // Chorus: 5ms-30ms modulation range
             {
-                delayTimeSamples = CS::jmap(mLFOs[i].get(pRateSmooth, mOffsets[i], mSampleRate) * pDepthSmooth, kLFOMin, kLFOMax, kFiveMilliseconds, kThirtyMilliseconds) * mSampleRate;
+                delayTimeSamples =
+                    CS::jmap(mLFOs[i].get(pRateSmooth, mOffsets[i], mSampleRate) * pDepthSmooth,
+                             kLFOMin, kLFOMax, kFiveMilliseconds, kThirtyMilliseconds) *
+                    mSampleRate;
             }
             else // Flanger: 1ms-5ms modulation range
             {
-                delayTimeSamples = CS::jmap(mLFOs[i].get(pRateSmooth, mOffsets[i], mSampleRate) * pDepthSmooth, kLFOMin, kLFOMax, kOneMillisecond, kFiveMilliseconds) * mSampleRate;
+                delayTimeSamples =
+                    CS::jmap(mLFOs[i].get(pRateSmooth, mOffsets[i], mSampleRate) * pDepthSmooth,
+                             kLFOMin, kLFOMax, kOneMillisecond, kFiveMilliseconds) *
+                    mSampleRate;
             }
 
             mDelaylines[i].updateReadHead(delayTimeSamples);
@@ -64,9 +72,7 @@ void ChorusFlanger::Execute(AkAudioBuffer *io_pBuffer, AkReal32 pDepth, AkReal32
             mFeedback = delayedSample * pFeedback;
 
             pBuf[numFramesProcessed] =
-                delayedSample * pDryWet +
-                pBuf[numFramesProcessed] * (1.f - pDryWet);
-
+                delayedSample * pDryWet + pBuf[numFramesProcessed] * (1.f - pDryWet);
 
             mDelaylines[i].updateWriteHead();
         }

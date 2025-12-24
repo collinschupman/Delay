@@ -18,11 +18,8 @@ float Delayline::read() const
     const float readHeadFraction = circularBuffer.getReadHead() - static_cast<float>(readHeadInt);
     const unsigned readHeadNext = static_cast<unsigned>(circularBuffer.getNextReadHead());
 
-    return CS::lerp(
-        circularBuffer.getValue(readHeadInt),
-        circularBuffer.getValue(readHeadNext), 
-        readHeadFraction
-    );
+    return CS::lerp(circularBuffer.getValue(readHeadInt), circularBuffer.getValue(readHeadNext),
+                    readHeadFraction);
 }
 
 void Delayline::updateReadHead(float delayTime)

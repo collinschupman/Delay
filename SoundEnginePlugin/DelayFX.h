@@ -27,37 +27,35 @@ the specific language governing permissions and limitations under the License.
 #ifndef DelayFX_H
 #define DelayFX_H
 
-#include "DelayFXParams.h"
 #include "Delay.h"
+#include "DelayFXParams.h"
 
 class DelayFX : public AK::IAkInPlaceEffectPlugin
 {
 public:
-  DelayFX();
-  ~DelayFX();
+    DelayFX();
+    ~DelayFX();
 
-  AKRESULT Init(AK::IAkPluginMemAlloc *in_pAllocator,
-                AK::IAkEffectPluginContext *in_pContext,
-                AK::IAkPluginParam *in_pParams,
-                AkAudioFormat &in_rFormat) override;
+    AKRESULT Init(AK::IAkPluginMemAlloc* in_pAllocator, AK::IAkEffectPluginContext* in_pContext,
+                  AK::IAkPluginParam* in_pParams, AkAudioFormat& in_rFormat) override;
 
-  AKRESULT Term(AK::IAkPluginMemAlloc *in_pAllocator) override;
+    AKRESULT Term(AK::IAkPluginMemAlloc* in_pAllocator) override;
 
-  AKRESULT Reset() override;
+    AKRESULT Reset() override;
 
-  AKRESULT GetPluginInfo(AkPluginInfo &out_rPluginInfo) override;
+    AKRESULT GetPluginInfo(AkPluginInfo& out_rPluginInfo) override;
 
-  void Execute(AkAudioBuffer *io_pBuffer) override;
+    void Execute(AkAudioBuffer* io_pBuffer) override;
 
-  AKRESULT TimeSkip(AkUInt32 in_uFrames) override;
+    AKRESULT TimeSkip(AkUInt32 in_uFrames) override;
 
 private:
-  DelayFXParams *m_pParams;
-  AK::IAkPluginMemAlloc *m_pAllocator;
-  AK::IAkEffectPluginContext *m_pContext;
+    DelayFXParams* m_pParams;
+    AK::IAkPluginMemAlloc* m_pAllocator;
+    AK::IAkEffectPluginContext* m_pContext;
 
-  AkUInt32 mSampleRate;
-  Delay mDelayModule;
+    AkUInt32 mSampleRate;
+    Delay mDelayModule;
 };
 
 #endif // DelayFX_H

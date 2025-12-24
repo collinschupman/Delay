@@ -11,10 +11,13 @@ struct LFO
 {
 public:
     constexpr LFO() noexcept = default;
-    
+
     float get(float rate, float phaseOffset, uint32_t sampleRate);
-    void reset() noexcept { mCurrentPhase = 0.f; }
-    
+    void reset() noexcept
+    {
+        mCurrentPhase = 0.f;
+    }
+
 private:
     float mCurrentPhase = 0.f;
 };

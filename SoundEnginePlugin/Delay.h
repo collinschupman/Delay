@@ -3,8 +3,8 @@
 #include "Delayline.h"
 #include "Helpers.h"
 
-#include <AK/SoundEngine/Common/AKTypes.h>
 #include <AK/SoundEngine/Common/AKCommonDefs.h>
+#include <AK/SoundEngine/Common/AKTypes.h>
 
 #include <array>
 
@@ -33,5 +33,6 @@ public:
         AkReal32 pDryWet;
     };
 
-    void Execute(AkAudioBuffer *io_pBuffer, std::array<InDelayParams, 2> &inParams, AkUInt32 uDelayMode);
+    void Execute(AkAudioBuffer* io_pBuffer, std::array<InDelayParams, 2>& inParams,
+                 AkUInt32 uDelayMode);
 };

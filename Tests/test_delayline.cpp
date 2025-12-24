@@ -1,6 +1,6 @@
-#include <gtest/gtest.h>
 #include "Delayline.h"
 #include <cmath>
+#include <gtest/gtest.h>
 
 class DelaylineTest : public ::testing::Test
 {
@@ -25,7 +25,7 @@ TEST_F(DelaylineTest, WriteAndReadWithDelay)
         delayline->write(0.0f);
         delayline->updateWriteHead();
     }
-    
+
     // Write the test value at position 20
     float testValue = 0.75f;
     delayline->write(testValue);
@@ -41,7 +41,7 @@ TEST_F(DelaylineTest, WriteAndReadWithDelay)
     // Now we're at position 30, looking back 10 samples should give us position 20
     delayline->updateReadHead(10.0f);
     float readValue = delayline->read();
-    
+
     // Should read the test value we wrote at position 20
     EXPECT_NEAR(readValue, testValue, 0.01f);
 }
@@ -58,7 +58,7 @@ TEST_F(DelaylineTest, LinearInterpolation)
     // Read with fractional delay (should interpolate)
     delayline->updateReadHead(10.5f); // 10.5 samples delay
     float readValue = delayline->read();
-    
+
     // Should interpolate between samples
     float expected = (89.0f + 90.0f) / 200.0f; // Approximate interpolation
     EXPECT_NEAR(readValue, expected, 0.05f);
@@ -72,16 +72,16 @@ TEST_F(DelaylineTest, ZeroDelay)
         delayline->write(0.0f);
         delayline->updateWriteHead();
     }
-    
+
     // Write test value
     float testValue = 0.5f;
     delayline->write(testValue);
     delayline->updateWriteHead();
-    
+
     // Read with minimal delay (1 sample)
     delayline->updateReadHead(1.0f);
     float readValue = delayline->read();
-    
+
     // Should get very close to the written value
     EXPECT_NEAR(readValue, testValue, 0.1f);
 }
@@ -90,7 +90,7 @@ TEST_F(DelaylineTest, MaxDelayTime)
 {
     // Write samples for full buffer length
     size_t bufferLength = static_cast<size_t>(sampleRate * maxDelayTime);
-    
+
     for (size_t i = 0; i < bufferLength; i++)
     {
         delayline->write(static_cast<float>(i) / static_cast<float>(bufferLength));
